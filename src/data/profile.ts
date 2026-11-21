@@ -571,8 +571,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
       },
       {
         label: 'GitHub',
-        handle: 'github.com/homayounmb',
-        url: 'https://github.com/homayounmb',
+        handle: 'github.com/mbhomayoun',
+        url: 'https://github.com/mbhomayoun',
       },
     ],
     pillars: [
@@ -1192,8 +1192,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
       },
       {
         label: 'GitHub',
-        handle: 'github.com/homayounmb',
-        url: 'https://github.com/homayounmb',
+        handle: 'github.com/mbhomayoun',
+        url: 'https://github.com/mbhomayoun',
       },
     ],
     pillars: [
