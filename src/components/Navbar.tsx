@@ -2,12 +2,18 @@ import { useEffect, useState } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { Command, Globe } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
+import { CmsPost } from '../types/cms';
+import { AlertBell } from './AlertBell';
 
 interface NavbarProps {
   lang: Lang;
   onToggleLang: () => void;
   onNavigate: (sectionId: string) => void;
   onOpenCommand: () => void;
+  alerts: CmsPost[];
+  dismissedAlertIds: string[];
+  onDismissAllAlerts: () => void;
+  onOpenAlert: (post: CmsPost) => void;
 }
 
 export function Navbar({
@@ -15,6 +21,10 @@ export function Navbar({
   onToggleLang,
   onNavigate,
   onOpenCommand,
+  alerts,
+  dismissedAlertIds,
+  onDismissAllAlerts,
+  onOpenAlert,
 }: NavbarProps) {
   const [activeId, setActiveId] = useState<string>('hero');
   const { scrollYProgress } = useScroll();
@@ -85,7 +95,7 @@ export function Navbar({
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                className={`relative px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
                   isActive
                     ? 'text-[#050608]'
                     : 'text-[#98A2B3] hover:text-[#F4F1EA]'
@@ -104,14 +114,23 @@ export function Navbar({
           })}
         </nav>
 
-        {/* End Controls: Language Switcher & Index ⌘K */}
+        {/* End Controls: Alert Bell, Language Switcher & Menu ⌘K */}
         <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
+          <AlertBell
+            lang={lang}
+            alerts={alerts}
+            dismissedIds={dismissedAlertIds}
+            onDismissAll={onDismissAllAlerts}
+            onOpenAlert={onOpenAlert}
+            onNavigateAcademy={() => onNavigate('academy')}
+          />
+
           <button
             onClick={onToggleLang}
             data-cursor="LANG"
             aria-label={copy.langSwitchLabel}
             title={copy.langSwitchLabel}
-            className="glass-panel rounded-full px-3 py-1.5 sm:py-2 flex items-center gap-1.5 text-[11px] font-medium text-[#F4F1EA] hover:text-[#2EE6D6] hover:border-[#2EE6D6]/45 transition-colors cursor-pointer"
+            className="glass-panel rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 text-[11px] font-medium text-[#F4F1EA] hover:text-[#2EE6D6] hover:border-[#2EE6D6]/45 transition-colors cursor-pointer"
           >
             <Globe className="w-3.5 h-3.5 text-[#2EE6D6] shrink-0" />
             <span className="tracking-wide">{copy.langSwitchShort}</span>
@@ -119,7 +138,7 @@ export function Navbar({
 
           <button
             onClick={onOpenCommand}
-            data-cursor="INDEX"
+            data-cursor="MENU"
             className="glass-panel rounded-full px-3 sm:px-3.5 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 text-xs text-[#F4F1EA] hover:border-[#2EE6D6]/45 transition-colors cursor-pointer"
           >
             <Command className="w-3.5 h-3.5 text-[#2EE6D6] shrink-0" />

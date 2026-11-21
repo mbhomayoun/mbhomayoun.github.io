@@ -11,6 +11,8 @@ export default defineConfig({
         manualChunks: {
           three: ['three'],
           motion: ['framer-motion', 'lenis'],
+          pdfjs: ['pdfjs-dist'],
+          genai: ['@google/genai'],
         },
       },
     },

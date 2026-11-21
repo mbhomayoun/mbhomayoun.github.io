@@ -257,7 +257,8 @@ export function ProjectsSection({ lang }: { lang: Lang }) {
                   exit={{ opacity: 0, y: 18, scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="glass-panel w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-3xl p-5 sm:p-8 space-y-5 border border-white/15"
+                  data-lenis-prevent
+                  className="glass-panel w-full max-w-2xl max-h-[88vh] overflow-y-auto overscroll-contain rounded-3xl p-5 sm:p-8 space-y-5 border border-white/15"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>

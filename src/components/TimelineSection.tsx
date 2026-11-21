@@ -1,12 +1,25 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
+import { mergeTimeline } from '../services/cms';
+import { LinkedInTimelineEntry } from '../types/cms';
 
-export function TimelineSection({ lang }: { lang: Lang }) {
+export function TimelineSection({
+  lang,
+  timelineOverrides = [],
+}: {
+  lang: Lang;
+  timelineOverrides?: LinkedInTimelineEntry[];
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const profile = PROFILE_BY_LANG[lang];
   const copy = UI_COPY[lang];
   const isRtl = lang === 'fa';
+
+  const items = useMemo(
+    () => mergeTimeline(profile.timeline, timelineOverrides, lang),
+    [profile.timeline, timelineOverrides, lang]
+  );
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -54,7 +67,7 @@ export function TimelineSection({ lang }: { lang: Lang }) {
           />
 
           <div className="space-y-10 sm:space-y-12">
-            {profile.timeline.map((item, idx) => {
+            {items.map((item, idx) => {
               const isLeft = idx % 2 === 0;
               return (
                 <div

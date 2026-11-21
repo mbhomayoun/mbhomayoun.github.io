@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "lastSyncedAt": "2026-11-21T08:00:00Z",
+  "openAlexAuthorId": "A5120058838",
+  "scholarAuthorId": "",
+  "posts": [
+    {
+      "id": "post-welcome-notice",
+      "placement": "alert",
+      "urgent": true,
+      "date": "2026-11-21",
+      "tagEn": "Academic Notice",
+      "tagFa": "اطلاعیه آموزشی",
+      "titleEn": "Office Hours & Geomechanics Seminar Schedule Updated",
+      "titleFa": "به‌روزرسانی برنامه جلسات رفع اشکال و سمینار ژئومکانیک",
+      "summaryEn": "Weekly wellbore mechanics & CFD office hours have shifted to Tuesdays 14:00–16:00 (AUT Petroleum Dept.).",
+      "summaryFa": "ساعات هفتگی رفع اشکال مکانیک چاه و شبیه‌سازی CFD به روزهای سه‌شنبه ساعت ۱۴ تا ۱۶ (دانشکده مهندسی نفت امیرکبیر) منتقل شد.",
+      "bodyEn": "Students and research collaborators working on formation creep modeling, API RP-61 carbonate conductivity data, or ANSYS wellbore cleanup meshes may drop by during Tuesday office hours or send an inquiry through the contact section.",
+      "bodyFa": "دانشجویان و پژوهشگران همکار در پروژه‌های خزش سازند، تحلیل داده‌های رسانایی کربناته API RP-61 یا مش‌بندی ANSYS پاک‌سازی چاه می‌توانند سه‌شنبه‌ها از ساعت ۱۴ تا ۱۶ مراجعه کنند یا از بخش تماس پیام ارسال نمایند.",
+      "mediaType": "none"
+    },
+    {
+      "id": "post-blog-viscoelastic",
+      "placement": "blog",
+      "urgent": false,
+      "date": "2026-11-15",
+      "tagEn": "Research Dispatch",
+      "tagFa": "گزارش پژوهشی",
+      "titleEn": "Inside the 3D Sequential Rock–Cement–Casing Creep Benchmark",
+      "titleFa": "مروری بر مدل‌سازی متوالی سه‌بعدی خزش سنگ–سیمان–لوله جداری",
+      "summaryEn": "How sequential excavation, hydration, and multi-year anisotropic loading reveal realistic casing collapse derating.",
+      "summaryFa": "چگونه شبیه‌سازی مرحله‌ای حفاری، هیدراتاسیون سیمان و بارگذاری ناهمسانگرد بلندمدت، افت واقعی مقاومت له‌شدگی جداری را آشکار می‌کند.",
+      "bodyEn": "Traditional casing design relies on static elastic solutions that underestimate how ductile formations relax deviatoric stress over years of production.\n\nIn our 2026 formulation, sequential finite-element steps capture drilling unloading, cement curing, and long-term viscoelastic-plastic creep simultaneously under unequal horizontal principal stresses.",
+      "bodyFa": "طراحی متداول لوله جداری بر فرضیات الاستیک ایستا تکیه دارد که آرامش تدریجی تنش انحرافی در سازندهای شکل‌پذیر را طی سال‌های بهره‌برداری دست‌کم می‌گیرد.\n\nدر فرمولاسیون ۲۰۲۶ ما، مراحل متوالی اجزای محدود شامل حفاری، گیرش سیمان و خزش ویسکوالاستوپلاستیک بلندمدت به صورت هم‌زمان تحت تنش‌های اصلی افقی نابرابر تحلیل می‌شوند.",
+      "equation": "ε(t) = ε_el + ε_ve(t) + ε_vp(σ_eff, t)",
+      "mediaType": "none"
+    },
+    {
+      "id": "post-note-well-cleaning",
+      "placement": "note",
+      "urgent": false,
+      "date": "2026-11-08",
+      "tagEn": "Lecture Note",
+      "tagFa": "جزوه آموزشی",
+      "titleEn": "Course Module: Grid Independence & Two-Phase Cuttings Transport (Model E2-475)",
+      "titleFa": "جزوه درسی: استقلال از شبکه و انتقال دوفازی کنده‌های حفاری (مدل E2-475)",
+      "summaryEn": "View-only lecture handout covering Eulerian–Eulerian CFD setup, boundary conditions, and mesh refinement.",
+      "summaryFa": "جزوه فقط‌خواندنی شامل تنظیمات شبیه‌سازی اویلری–اویلری، شرایط مرزی و بهینه‌سازی شبکه مش در ANSYS.",
+      "bodyEn": "1. Define continuous liquid phase and dispersed CaCO3 solid particle properties.\n\n2. Model the four-nozzle drill bit simulator inlet velocity profile accurately.\n\n3. Perform systematic mesh convergence across 100k, 200k, 475k, and 500k tetrahedral elements: Model E2-475 achieves optimal accuracy-to-runtime balance.\n\nNote: This material is view-only and protected for course participants.",
+      "bodyFa": "۱. تعریف خواص فاز پیوسته سیال حفاری و فاز پراکنده ذرات جامد کربنات کلسیم (CaCO3).\n\n۲. اعمال دقیق پروفیل سرعت ورودی در شبیه‌ساز مته چهارنازله.\n\n۳. انجام تحلیل همگرایی مش روی شبکه‌های ۱۰۰، ۲۰۰، ۴۷۵ و ۵۰۰ هزار المانی: مدل E2-475 بهترین توازن دقت و زمان اجرا را ارائه می‌دهد.\n\nتوجه: این محتوا به صورت فقط‌خواندنی و با حفظ حقوق مؤلف روی سایت قابل مشاهده است.",
+      "equation": "∂ₜ(α_s ρ_s u_s) + ∇·(α_s ρ_s u_s ⊗ u_s) = −α_s∇p + M_drag + α_s ρ_s g",
+      "mediaType": "none",
+      "durationOrPages": "View-Only Note"
+    }
+  ],
+  "syncedPublications": [],
+  "timelineOverrides": []
+}

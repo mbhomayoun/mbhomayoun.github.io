@@ -9,17 +9,30 @@ import {
   Search,
 } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, PublicationItem, UI_COPY } from '../data/profile';
+import { mergePublications } from '../services/cms';
+import { SyncedPublication } from '../types/cms';
 
-export function PublicationsSection({ lang }: { lang: Lang }) {
+export function PublicationsSection({
+  lang,
+  syncedPublications = [],
+}: {
+  lang: Lang;
+  syncedPublications?: SyncedPublication[];
+}) {
   const profile = PROFILE_BY_LANG[lang];
   const copy = UI_COPY[lang];
   const isRtl = lang === 'fa';
+
+  const allPublications = useMemo(
+    () => mergePublications(profile.publications, syncedPublications),
+    [profile.publications, syncedPublications]
+  );
 
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'All' | PublicationItem['type']>('All');
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(
-    profile.publications[0]?.id ?? null
+    allPublications[0]?.id ?? null
   );
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -29,14 +42,14 @@ export function PublicationsSection({ lang }: { lang: Lang }) {
 
   const allTopics = useMemo(() => {
     const map = new Map<string, number>();
-    profile.publications.forEach((p) =>
+    allPublications.forEach((p) =>
       p.topics.forEach((t) => map.set(t, (map.get(t) ?? 0) + 1))
     );
     return Array.from(map.entries()).map(([name, count]) => ({ name, count }));
-  }, [profile.publications]);
+  }, [allPublications]);
 
   const filtered = useMemo(() => {
-    return profile.publications.filter((p) => {
+    return allPublications.filter((p) => {
       if (typeFilter !== 'All' && p.type !== typeFilter) return false;
       if (topicFilter && !p.topics.includes(topicFilter)) return false;
       if (query.trim()) {
@@ -50,11 +63,11 @@ export function PublicationsSection({ lang }: { lang: Lang }) {
       }
       return true;
     });
-  }, [profile.publications, query, typeFilter, topicFilter]);
+  }, [allPublications, query, typeFilter, topicFilter]);
 
   const uniqueVenues = useMemo(
-    () => new Set(profile.publications.map((p) => p.venue)).size,
-    [profile.publications]
+    () => new Set(allPublications.map((p) => p.venue)).size,
+    [allPublications]
   );
 
   const copyBibtex = (pub: PublicationItem) => {
@@ -88,7 +101,7 @@ export function PublicationsSection({ lang }: { lang: Lang }) {
           <div className="glass-panel rounded-2xl px-5 py-3.5 flex items-center gap-6 w-fit">
             <div>
               <div className="font-serif italic text-2xl text-[#F4F1EA]">
-                {profile.publications.length}
+                {allPublications.length}
               </div>
               <div className="text-[10px] tracking-wider text-[#98A2B3]">
                 {copy.publications.featuredWorks}

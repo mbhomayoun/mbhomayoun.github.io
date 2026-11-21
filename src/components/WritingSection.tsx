@@ -75,7 +75,8 @@ function ArticleReaderDrawer({
 
         <div
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto px-5 sm:px-10 py-7 sm:py-8 space-y-6"
+          data-lenis-prevent
+          className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-10 py-7 sm:py-8 space-y-6"
         >
           <div className="space-y-3">
             <span className="font-mono text-xs text-[#98A2B3]">{article.date}</span>

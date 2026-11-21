@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   BookOpen,
@@ -7,6 +8,7 @@ import {
   FlaskConical,
   Globe,
   Search,
+  Settings2,
   Sparkles,
   Terminal,
   X,
@@ -19,6 +21,7 @@ interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
   onNavigate: (sectionId: string) => void;
+  onOpenAdmin: () => void;
   reducedMotion: boolean;
   onToggleReducedMotion: () => void;
 }
@@ -26,7 +29,7 @@ interface CommandPaletteProps {
 interface CommandAction {
   id: string;
   group: string;
-  kind: 'nav' | 'lang' | 'motion' | 'copy' | 'proj' | 'pub';
+  kind: 'nav' | 'lang' | 'motion' | 'copy' | 'proj' | 'pub' | 'admin';
   label: string;
   hint: string;
   run: () => void;
@@ -38,6 +41,7 @@ export function CommandPalette({
   open,
   onClose,
   onNavigate,
+  onOpenAdmin,
   reducedMotion,
   onToggleReducedMotion,
 }: CommandPaletteProps) {
@@ -74,6 +78,17 @@ export function CommandPalette({
     }));
 
     const utilityActions: CommandAction[] = [
+      {
+        id: 'open-admin',
+        group: copy.command.groups.utilities,
+        kind: 'admin',
+        label:
+          lang === 'fa'
+            ? 'پنل مدیریت، آپلود و دستیار هوش مصنوعی'
+            : 'Open Admin Studio, Uploads & AI Translator',
+        hint: 'Admin',
+        run: () => onOpenAdmin(),
+      },
       {
         id: 'switch-lang',
         group: copy.command.groups.utilities,
@@ -127,18 +142,29 @@ export function CommandPalette({
     ];
 
     return [...navActions, ...utilityActions];
-  }, [copy, onNavigate, onToggleLang, onToggleReducedMotion, profile, reducedMotion]);
+  }, [
+    copy,
+    lang,
+    onNavigate,
+    onOpenAdmin,
+    onToggleLang,
+    onToggleReducedMotion,
+    profile,
+    reducedMotion,
+  ]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return actions.slice(0, 12);
+    if (!q) return actions.slice(0, 14);
     return actions.filter(
       (a) =>
         a.label.toLowerCase().includes(q) || a.group.toLowerCase().includes(q)
     );
   }, [actions, query]);
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -171,6 +197,7 @@ export function CommandPalette({
               />
               <button
                 onClick={onClose}
+                aria-label="Close menu"
                 className="rounded-md p-1 hover:bg-white/10 text-[#98A2B3] cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -183,22 +210,28 @@ export function CommandPalette({
               </div>
             )}
 
-            <div className="max-h-[58vh] overflow-y-auto p-2 space-y-1">
+            {/* data-lenis-prevent + overscroll-contain stops wheel scrolling from leaking to webpage behind */}
+            <div
+              data-lenis-prevent
+              className="max-h-[58vh] overflow-y-auto overscroll-contain p-2 space-y-1"
+            >
               {filtered.map((item) => {
                 const Icon =
                   item.kind === 'nav'
                     ? Compass
-                    : item.kind === 'lang'
-                      ? Globe
-                      : item.kind === 'motion'
-                        ? Sparkles
-                        : item.kind === 'pub'
-                          ? BookOpen
-                          : item.kind === 'proj'
-                            ? FlaskConical
-                            : item.kind === 'copy'
-                              ? Copy
-                              : Terminal;
+                    : item.kind === 'admin'
+                      ? Settings2
+                      : item.kind === 'lang'
+                        ? Globe
+                        : item.kind === 'motion'
+                          ? Sparkles
+                          : item.kind === 'pub'
+                            ? BookOpen
+                            : item.kind === 'proj'
+                              ? FlaskConical
+                              : item.kind === 'copy'
+                                ? Copy
+                                : Terminal;
 
                 return (
                   <button
@@ -240,6 +273,7 @@ export function CommandPalette({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
