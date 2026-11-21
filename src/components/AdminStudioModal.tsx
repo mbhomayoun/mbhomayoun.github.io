@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   Check,
   CloudUpload,
-  KeyRound,
   Languages,
   Linkedin,
   Lock,
@@ -19,18 +18,21 @@ import {
 } from 'lucide-react';
 import { Lang } from '../data/profile';
 import {
-  backendAiDraft,
-  backendAiLinkedIn,
-  backendAiTranslate,
-  backendPublishCms,
-  backendUploadFile,
-  clearAdminSession,
-  getAdminEndpoint,
-  loginToAdminBackend,
-  setAdminEndpoint,
-  verifyAdminSession,
-} from '../services/adminApi';
-import { syncOpenAlexPublications } from '../services/githubSync';
+  clearUnlockedVaultSession,
+  getUnlockedVaultSession,
+  unlockAdminVault,
+  UnlockedVaultSession,
+} from '../services/adminVault';
+import {
+  smartAutoTranslatePost,
+  smartDraftPost,
+  smartParseLinkedIn,
+} from '../services/freeAiAssistant';
+import {
+  publishCmsToGitHub,
+  syncOpenAlexPublications,
+  uploadMaterialFileToGitHub,
+} from '../services/githubSync';
 import { CmsPayload, CmsPost, ContentPlacement } from '../types/cms';
 
 interface AdminStudioModalProps {
@@ -50,21 +52,13 @@ export function AdminStudioModal({
 }: AdminStudioModalProps) {
   const isRtl = lang === 'fa';
 
-  // Strict Auth Gate State
-  const [endpoint, setEndpoint] = useState(() => getAdminEndpoint());
-  const [showBackendConfig, setShowBackendConfig] = useState(false);
-  const [authChecking, setAuthChecking] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
-  const [adminEmail, setAdminEmail] = useState('');
+  // Strict Email + Password Gate State
+  const [session, setSession] = useState<UnlockedVaultSession | null>(null);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [serverCapabilities, setServerCapabilities] = useState({
-    hasGemini: false,
-    hasGitHub: false,
-  });
 
-  // Single-Section Composer State (only rendered once authenticated === true)
+  // Single-Section Composer State (only mounted once session !== null)
   const [placement, setPlacement] = useState<ContentPlacement>('blog');
   const [urgent, setUrgent] = useState(false);
   const [sourceLang, setSourceLang] = useState<'en' | 'fa'>(lang);
@@ -94,22 +88,9 @@ export function AdminStudioModal({
 
   useEffect(() => {
     if (!open) return;
-    let active = true;
-    setAuthChecking(true);
-    verifyAdminSession(endpoint).then((res) => {
-      if (!active) return;
-      setAuthenticated(res.authenticated);
-      setAdminEmail(res.email ?? '');
-      setServerCapabilities({
-        hasGemini: Boolean(res.hasGemini),
-        hasGitHub: Boolean(res.hasGitHub),
-      });
-      setAuthChecking(false);
-    });
-    return () => {
-      active = false;
-    };
-  }, [open, endpoint]);
+    setSession(getUnlockedVaultSession());
+    setLoginError(null);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -123,31 +104,10 @@ export function AdminStudioModal({
   const handleLoginSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoginError(null);
-    const activeEndpoint = endpoint.trim();
-    if (!activeEndpoint) {
-      setShowBackendConfig(true);
-      setLoginError(
-        isRtl
-          ? 'نشانی سرور امن مدیریت (Vercel یا Cloudflare Worker) هنوز تنظیم نشده است.'
-          : 'Secure backend URL (Vercel or Cloudflare Worker) is not set yet.'
-      );
-      return;
-    }
-
     setBusy('login');
     try {
-      setAdminEndpoint(activeEndpoint);
-      const res = await loginToAdminBackend({
-        endpoint: activeEndpoint,
-        email: loginEmail.trim(),
-        password: loginPassword,
-      });
-      setAuthenticated(true);
-      setAdminEmail(res.email);
-      setServerCapabilities({
-        hasGemini: res.hasGemini,
-        hasGitHub: res.hasGitHub,
-      });
+      const unlocked = await unlockAdminVault(loginEmail, loginPassword);
+      setSession(unlocked);
       setLoginPassword('');
     } catch (err) {
       setLoginError(
@@ -163,9 +123,8 @@ export function AdminStudioModal({
   };
 
   const handleSignOut = () => {
-    clearAdminSession();
-    setAuthenticated(false);
-    setAdminEmail('');
+    clearUnlockedVaultSession();
+    setSession(null);
     setStatusBanner(null);
   };
 
@@ -179,21 +138,22 @@ export function AdminStudioModal({
   };
 
   const handleAiPolish = async () => {
+    if (!session) return;
     const seed = [srcTitle, srcSummary, srcBody].filter(Boolean).join('\n');
     if (!seed.trim()) {
       setStatusBanner({
         type: 'err',
         msg: isRtl
-          ? 'ابتدا چند خط ایده یا عنوان بنویسید تا هوش مصنوعی متن را تکمیل کند.'
-          : 'Write a short idea or title first for AI to polish.',
+          ? 'ابتدا چند خط ایده یا عنوان بنویسید تا دستیار هوشمند متن را تکمیل کند.'
+          : 'Write a short idea or title first for the AI assistant to expand.',
       });
       return;
     }
     setBusy('draft');
     setStatusBanner(null);
     try {
-      const out = await backendAiDraft({
-        endpoint,
+      const out = await smartDraftPost({
+        geminiKey: session.geminiKey,
         sourceLang,
         placement,
         promptOrDraft: seed,
@@ -204,9 +164,14 @@ export function AdminStudioModal({
       setSrcBody(out.body);
       setStatusBanner({
         type: 'ok',
-        msg: isRtl
-          ? 'متن با دستیار Gemini سرور نگارش و بهینه‌سازی شد.'
-          : 'Draft polished via your secure Gemini backend.',
+        msg:
+          out.engine === 'gemini'
+            ? isRtl
+              ? 'متن با هوش مصنوعی Gemini نگارش و بهبود یافت.'
+              : 'Draft polished with Gemini AI.'
+            : isRtl
+              ? 'متن با دستیار داخلی ساختاردهی و آماده شد.'
+              : 'Draft structured cleanly with built-in academic assistant.',
       });
     } catch (err) {
       setStatusBanner({
@@ -219,12 +184,13 @@ export function AdminStudioModal({
   };
 
   const handleAiTranslate = async () => {
+    if (!session) return;
     if (!srcTitle.trim() && !srcBody.trim()) return;
     setBusy('translate');
     setStatusBanner(null);
     try {
-      const res = await backendAiTranslate({
-        endpoint,
+      const res = await smartAutoTranslatePost({
+        geminiKey: session.geminiKey,
         fromLang: sourceLang,
         tag: srcTag || placement,
         title: srcTitle,
@@ -237,9 +203,14 @@ export function AdminStudioModal({
       setTrBody(res.translatedBody);
       setStatusBanner({
         type: 'ok',
-        msg: isRtl
-          ? 'پیش‌نمایش ترجمه دوزبانه آماده شد!'
-          : 'Auto-translation preview ready! Inspect both versions before publishing.',
+        msg:
+          res.engine === 'gemini'
+            ? isRtl
+              ? 'پیش‌نمایش ترجمه هوشمند Gemini آماده شد!'
+              : 'Gemini AI translation preview ready! Review both versions before publishing.'
+            : isRtl
+              ? 'پیش‌نمایش ترجمه دوزبانه آماده شد (موتور ترجمه آزاد)!'
+              : 'Bilingual translation preview ready! Review both versions before publishing.',
       });
     } catch (err) {
       setStatusBanner({
@@ -252,10 +223,13 @@ export function AdminStudioModal({
   };
 
   const handlePublishPost = async () => {
+    if (!session) return;
     if (!srcTitle.trim()) {
       setStatusBanner({
         type: 'err',
-        msg: isRtl ? 'عنوان مطلب را وارد کنید.' : 'Please enter a title before publishing.',
+        msg: isRtl
+          ? 'عنوان مطلب را وارد کنید.'
+          : 'Please enter a title before publishing.',
       });
       return;
     }
@@ -269,8 +243,10 @@ export function AdminStudioModal({
         : 'none';
 
       if (mediaFile) {
-        const uploaded = await backendUploadFile({ endpoint, file: mediaFile });
-        mediaUrl = uploaded.mediaUrl;
+        mediaUrl = await uploadMaterialFileToGitHub({
+          token: session.githubToken,
+          file: mediaFile,
+        });
         mediaType = mediaFile.type.includes('pdf') ? 'pdf' : 'video-file';
       }
 
@@ -302,8 +278,8 @@ export function AdminStudioModal({
         posts: [newPost, ...cmsData.posts],
       };
 
-      await backendPublishCms({
-        endpoint,
+      await publishCmsToGitHub({
+        token: session.githubToken,
         payload: nextPayload,
         commitMessage: `cms: publish "${newPost.titleEn.slice(0, 48)}"`,
       });
@@ -326,7 +302,7 @@ export function AdminStudioModal({
         type: 'ok',
         msg: isRtl
           ? 'با موفقیت روی وب‌سایت زنده منتشر شد!'
-          : 'Published globally to your live site!',
+          : 'Published globally to your live website!',
       });
     } catch (err) {
       setStatusBanner({
@@ -339,14 +315,15 @@ export function AdminStudioModal({
   };
 
   const handleDeletePost = async (id: string) => {
+    if (!session) return;
     setBusy('delete');
     try {
       const nextPayload: CmsPayload = {
         ...cmsData,
         posts: cmsData.posts.filter((p) => p.id !== id),
       };
-      await backendPublishCms({
-        endpoint,
+      await publishCmsToGitHub({
+        token: session.githubToken,
         payload: nextPayload,
         commitMessage: `cms: remove item ${id}`,
       });
@@ -362,6 +339,7 @@ export function AdminStudioModal({
   };
 
   const handleSyncOpenAlex = async () => {
+    if (!session) return;
     setBusy('sync');
     setStatusBanner(null);
     try {
@@ -373,8 +351,8 @@ export function AdminStudioModal({
         lastSyncedAt: new Date().toISOString(),
         syncedPublications: synced,
       };
-      await backendPublishCms({
-        endpoint,
+      await publishCmsToGitHub({
+        token: session.githubToken,
         payload: nextPayload,
         commitMessage: 'chore(sync): update publications from OpenAlex',
       });
@@ -396,20 +374,20 @@ export function AdminStudioModal({
   };
 
   const handleImportLinkedIn = async () => {
-    if (!linkedInPaste.trim()) return;
+    if (!session || !linkedInPaste.trim()) return;
     setBusy('linkedin');
     setStatusBanner(null);
     try {
-      const { entries } = await backendAiLinkedIn({
-        endpoint,
+      const entries = await smartParseLinkedIn({
+        geminiKey: session.geminiKey,
         rawText: linkedInPaste,
       });
       const nextPayload: CmsPayload = {
         ...cmsData,
         timelineOverrides: [...entries, ...cmsData.timelineOverrides],
       };
-      await backendPublishCms({
-        endpoint,
+      await publishCmsToGitHub({
+        token: session.githubToken,
         payload: nextPayload,
         commitMessage: 'cms: update career timeline from LinkedIn',
       });
@@ -462,7 +440,7 @@ export function AdminStudioModal({
           onClick={onClose}
           className="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
         >
-          {!authenticated ? (
+          {!session ? (
             /* STRICT LOCKED LOGIN GATE — Nothing else exists in DOM before authentication */
             <motion.div
               initial={{ opacity: 0, y: 18, scale: 0.97 }}
@@ -497,100 +475,62 @@ export function AdminStudioModal({
                 </button>
               </div>
 
-              {authChecking ? (
-                <div className="py-8 text-center text-xs text-[#98A2B3]">
-                  {isRtl ? 'در حال بررسی نشست امن...' : 'Checking active session...'}
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-[#98A2B3]">
+                    {isRtl ? 'ایمیل مدیر' : 'Admin Email'}
+                  </label>
+                  <input
+                    required
+                    dir="ltr"
+                    type="email"
+                    autoComplete="username"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="mb.homayoun@aut.ac.ir"
+                    className="w-full rounded-xl bg-black/50 border border-white/10 px-4 py-2.5 text-sm text-[#F4F1EA] focus:outline-none focus:border-[#2EE6D6]"
+                  />
                 </div>
-              ) : (
-                <form onSubmit={handleLoginSubmit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs text-[#98A2B3]">
-                      {isRtl ? 'ایمیل مدیر' : 'Admin Email'}
-                    </label>
-                    <input
-                      required
-                      dir="ltr"
-                      type="email"
-                      autoComplete="username"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="mb.homayoun@aut.ac.ir"
-                      className="w-full rounded-xl bg-black/50 border border-white/10 px-4 py-2.5 text-sm text-[#F4F1EA] focus:outline-none focus:border-[#2EE6D6]"
-                    />
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-[#98A2B3]">
+                    {isRtl ? 'رمز عبور' : 'Password'}
+                  </label>
+                  <input
+                    required
+                    dir="ltr"
+                    type="password"
+                    autoComplete="current-password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full rounded-xl bg-black/50 border border-white/10 px-4 py-2.5 text-sm text-[#F4F1EA] focus:outline-none focus:border-[#2EE6D6]"
+                  />
+                </div>
+
+                {loginError && (
+                  <div className="rounded-xl bg-[#F5B971]/12 border border-[#F5B971]/35 px-3.5 py-2.5 text-xs text-[#F5B971]">
+                    {loginError}
                   </div>
+                )}
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs text-[#98A2B3]">
-                      {isRtl ? 'رمز عبور' : 'Password'}
-                    </label>
-                    <input
-                      required
-                      dir="ltr"
-                      type="password"
-                      autoComplete="current-password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="••••••••••••"
-                      className="w-full rounded-xl bg-black/50 border border-white/10 px-4 py-2.5 text-sm text-[#F4F1EA] focus:outline-none focus:border-[#2EE6D6]"
-                    />
-                  </div>
-
-                  {loginError && (
-                    <div className="rounded-xl bg-[#F5B971]/12 border border-[#F5B971]/35 px-3.5 py-2.5 text-xs text-[#F5B971]">
-                      {loginError}
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={busy === 'login'}
-                    className="w-full rounded-full bg-[#2EE6D6] hover:bg-[#F4F1EA] text-[#050608] font-semibold text-sm py-3 px-6 transition-colors cursor-pointer"
-                  >
-                    {busy === 'login'
-                      ? isRtl ? 'در حال ورود...' : 'Signing in...'
-                      : isRtl ? 'ورود به پنل مدیریت' : 'Sign In'}
-                  </button>
-
-                  <div className="pt-2 border-t border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setShowBackendConfig((v) => !v)}
-                      className="text-[11px] text-[#98A2B3] hover:text-[#2EE6D6] cursor-pointer flex items-center gap-1.5"
-                    >
-                      <KeyRound className="w-3 h-3" />
-                      <span>
-                        {isRtl
-                          ? 'تنظیم آدرس سرور امن (Vercel / Worker)'
-                          : 'Configure Private Backend Endpoint'}
-                      </span>
-                    </button>
-
-                    {showBackendConfig && (
-                      <div className="mt-2.5 space-y-1.5">
-                        <input
-                          dir="ltr"
-                          type="url"
-                          value={endpoint}
-                          onChange={(e) => {
-                            setEndpoint(e.target.value);
-                            setAdminEndpoint(e.target.value);
-                          }}
-                          placeholder="https://your-app.vercel.app/api/admin"
-                          className="w-full rounded-xl bg-black/50 border border-white/10 px-3 py-2 text-xs text-[#F4F1EA] focus:outline-none focus:border-[#2EE6D6]"
-                        />
-                        <p className="text-[10px] text-[#98A2B3] leading-relaxed">
-                          {isRtl
-                            ? 'کلیدهای Gemini و GitHub شما فقط روی سرور امن نگهداری می‌شوند و هرگز در کد سایت قرار نمی‌گیرند.'
-                            : 'Your Gemini key & GitHub token remain encrypted server-side on Vercel/Cloudflare—never exposed in this public site.'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </form>
-              )}
+                <button
+                  type="submit"
+                  disabled={busy === 'login'}
+                  className="w-full rounded-full bg-[#2EE6D6] hover:bg-[#F4F1EA] text-[#050608] font-semibold text-sm py-3 px-6 transition-colors cursor-pointer"
+                >
+                  {busy === 'login'
+                    ? isRtl
+                      ? 'در حال ورود...'
+                      : 'Signing in...'
+                    : isRtl
+                      ? 'ورود به پنل مدیریت'
+                      : 'Sign In'}
+                </button>
+              </form>
             </motion.div>
           ) : (
-            /* AUTHENTICATED SINGLE-SECTION COMPOSER (Keys pre-implanted server-side!) */
+            /* AUTHENTICATED SINGLE-SECTION COMPOSER */
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -613,18 +553,22 @@ export function AdminStudioModal({
                         : 'Private Owner Studio & AI Publisher'}
                     </h2>
                     <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#98A2B3] mt-0.5">
-                      <span dir="ltr" className="text-[#2EE6D6]">{adminEmail}</span>
-                      <span>·</span>
-                      <span>
-                        {serverCapabilities.hasGemini
-                          ? isRtl ? 'Gemini متصل' : 'Gemini Ready'
-                          : isRtl ? 'Gemini تنظیم نشده' : 'Gemini Missing'}
+                      <span dir="ltr" className="text-[#2EE6D6]">
+                        {session.email}
                       </span>
                       <span>·</span>
                       <span>
-                        {serverCapabilities.hasGitHub
-                          ? isRtl ? 'انتشار زنده فعال' : 'Live GitHub Ready'
-                          : isRtl ? 'توکن گیت‌هاب تنظیم نشده' : 'GitHub Missing'}
+                        {session.geminiKey
+                          ? isRtl
+                            ? 'دستیار Gemini + مترجم آزاد فعال'
+                            : 'Gemini AI + Built-in Translator Active'
+                          : isRtl
+                            ? 'دستیار داخلی و مترجم آزاد فعال'
+                            : 'Built-in AI & Free Translator Active'}
+                      </span>
+                      <span>·</span>
+                      <span>
+                        {isRtl ? 'انتشار سراسری گیت‌هاب فعال' : 'Live Publishing Active'}
                       </span>
                     </div>
                   </div>
