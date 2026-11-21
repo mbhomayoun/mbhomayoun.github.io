@@ -6,10 +6,10 @@ import { PROFILE, ProjectItem } from '../data/profile';
 
 const CATEGORIES = [
   'All',
-  'AI & Modeling',
-  'Computational Physics',
-  'Open Tools',
-  'Systems',
+  'Geomechanics',
+  'Stimulation',
+  'Drilling & CFD',
+  'Energy Policy',
 ] as const;
 
 function Sparkline({ data, accent }: { data: number[]; accent: string }) {
@@ -62,11 +62,11 @@ const TiltProjectCard = forwardRef<
   const resetTilt = () => setTilt({ rx: 0, ry: 0, mx: 50, my: 50 });
 
   const accent =
-    project.category === 'AI & Modeling'
+    project.category === 'Geomechanics'
       ? '#2EE6D6'
-      : project.category === 'Computational Physics'
+      : project.category === 'Stimulation'
         ? '#F5B971'
-        : project.category === 'Open Tools'
+        : project.category === 'Drilling & CFD'
           ? '#8B7CFF'
           : '#38BDF8';
 
@@ -340,7 +340,7 @@ export function ProjectsSection() {
                         className="inline-flex items-center gap-2 rounded-full bg-[#F4F1EA] px-4 py-2 text-xs font-semibold text-[#050608] hover:bg-[#2EE6D6] transition-colors"
                       >
                         <Code2 className="w-3.5 h-3.5" />
-                        Source Repo
+                        Publication / Record
                       </a>
                       {selected.liveUrl && (
                         <a

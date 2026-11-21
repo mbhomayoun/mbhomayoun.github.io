@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { PROFILE, PublicationItem } from '../data/profile';
 
-const PUB_TYPES = ['All', 'Journal', 'Conference', 'Preprint'] as const;
+const PUB_TYPES = ['All', 'Journal', 'Preprint', 'Book'] as const;
 
 export function PublicationsSection() {
   const [query, setQuery] = useState('');
@@ -46,9 +46,9 @@ export function PublicationsSection() {
     });
   }, [query, typeFilter, topicFilter]);
 
-  const totalCitations = PROFILE.publications.reduce(
-    (sum, p) => sum + p.citations,
-    0
+  const uniqueVenues = useMemo(
+    () => new Set(PROFILE.publications.map((p) => p.venue)).size,
+    []
   );
 
   const copyBibtex = (pub: PublicationItem) => {
@@ -86,10 +86,10 @@ export function PublicationsSection() {
             <div className="h-8 w-px bg-white/10" />
             <div>
               <div className="font-serif italic text-2xl text-[#2EE6D6]">
-                {totalCitations}
+                {uniqueVenues}
               </div>
               <div className="font-mono text-[10px] uppercase tracking-wider text-[#98A2B3]">
-                Selected Citations
+                Journals &amp; Press
               </div>
             </div>
           </div>
@@ -190,9 +190,13 @@ export function PublicationsSection() {
                           {pub.year} · {pub.type}
                         </span>
                         <span className="text-[#2EE6D6]">{pub.venue}</span>
-                        <span className="text-[#98A2B3]">
-                          · {pub.citations} citations
-                        </span>
+                        {pub.citations > 0 ? (
+                          <span className="text-[#98A2B3]">
+                            · {pub.citations} citations
+                          </span>
+                        ) : (
+                          <span className="text-[#98A2B3]">· {pub.doi}</span>
+                        )}
                       </div>
 
                       <h3

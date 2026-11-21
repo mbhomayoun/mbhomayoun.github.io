@@ -99,7 +99,11 @@ export function App() {
       />
 
       <main className="relative">
-        <HeroSection onNavigate={navigateTo} ready={ready} />
+        <HeroSection
+          onNavigate={navigateTo}
+          ready={ready}
+          reducedMotion={reducedMotion}
+        />
         <PinnedLabShowcase />
         <ProjectsSection />
         <PublicationsSection />
