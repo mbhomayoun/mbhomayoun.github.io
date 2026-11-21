@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
-import { PROFILE, ResearchPillar } from '../data/profile';
+import { Lang, PROFILE_BY_LANG, ResearchPillar, UI_COPY } from '../data/profile';
 
 type SimMode = ResearchPillar['simulationMode'];
 
 function InteractivePhysicsCanvas({
   mode,
   accent,
+  liveSimLabel,
+  interactHint,
 }: {
   mode: SimMode;
   accent: string;
+  liveSimLabel: string;
+  interactHint: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const modeRef = useRef<SimMode>(mode);
@@ -26,37 +30,37 @@ function InteractivePhysicsCanvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const isMobile = window.innerWidth < 768;
     let w = 0;
     let h = 0;
     const pointer = { x: 0.5, y: 0.5, active: false };
 
-    const particles = Array.from({ length: 130 }, (_, i) => ({
+    const particles = Array.from({ length: isMobile ? 55 : 120 }, (_, i) => ({
       x: Math.random(),
       y: Math.random(),
-      vx: 0,
-      vy: 0,
       phase: i * 0.23,
     }));
 
-    const nodes = Array.from({ length: 28 }, (_, i) => ({
+    const nodes = Array.from({ length: isMobile ? 16 : 26 }, (_, i) => ({
       x: 0.15 + ((i * 37) % 70) / 100,
       y: 0.15 + ((i * 53) % 70) / 100,
       vx: (Math.random() - 0.5) * 0.0014,
       vy: (Math.random() - 0.5) * 0.0014,
-      r: 2.5 + (i % 4),
+      r: 2.4 + (i % 4),
     }));
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = Math.max(rect.width, 280);
-      h = Math.max(rect.height, 260);
+      const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+      w = Math.max(rect.width, 260);
+      h = Math.max(rect.height, 220);
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
       const rect = canvas.getBoundingClientRect();
       pointer.x = (e.clientX - rect.left) / Math.max(rect.width, 1);
       pointer.y = (e.clientY - rect.top) / Math.max(rect.height, 1);
@@ -80,12 +84,11 @@ function InteractivePhysicsCanvas({
       const curMode = modeRef.current;
       const curAccent = accentRef.current;
 
-      // Subtle motion trail clear
-      ctx.fillStyle = curMode === 'curl' ? 'rgba(6, 9, 14, 0.14)' : 'rgba(6, 9, 14, 0.35)';
+      ctx.fillStyle =
+        curMode === 'curl' ? 'rgba(6, 9, 14, 0.15)' : 'rgba(6, 9, 14, 0.35)';
       ctx.fillRect(0, 0, w, h);
 
       if (curMode === 'curl') {
-        // Turbulent PDE Streamline Field
         for (const p of particles) {
           const angle =
             Math.sin(p.x * 6.2 + t * 0.8) * Math.cos(p.y * 6.2 - t * 0.6) * Math.PI * 2;
@@ -118,9 +121,8 @@ function InteractivePhysicsCanvas({
         }
         ctx.globalAlpha = 1;
       } else if (curMode === 'lattice') {
-        // Deforming Multiscale Lattice-Boltzmann Mesh
-        const cols = 14;
-        const rows = 10;
+        const cols = isMobile ? 10 : 14;
+        const rows = isMobile ? 7 : 10;
         const pts: { x: number; y: number }[][] = [];
         for (let r = 0; r <= rows; r++) {
           pts[r] = [];
@@ -139,7 +141,7 @@ function InteractivePhysicsCanvas({
               const dy = py - pointer.y * h;
               const d = Math.hypot(dx, dy);
               if (d < 130 && d > 1) {
-                const push = ((130 - d) / 130) * 26;
+                const push = ((130 - d) / 130) * 24;
                 px += (dx / d) * push;
                 py += (dy / d) * push;
               }
@@ -174,12 +176,11 @@ function InteractivePhysicsCanvas({
           for (let c = 0; c <= cols; c += 2) {
             const pt = pts[r][c];
             ctx.beginPath();
-            ctx.arc(pt.x, pt.y, 2.1, 0, Math.PI * 2);
+            ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
             ctx.fill();
           }
         }
       } else if (curMode === 'wave') {
-        // Acoustic / Bayesian Interference Harmonics
         const s1 = {
           x: (0.35 + Math.sin(t * 0.7) * 0.08) * w,
           y: (0.5 + Math.cos(t * 0.5) * 0.08) * h,
@@ -189,7 +190,8 @@ function InteractivePhysicsCanvas({
           y: (pointer.active ? pointer.y : 0.5 + Math.sin(t * 0.8) * 0.08) * h,
         };
 
-        for (let i = 1; i <= 14; i++) {
+        const rings = isMobile ? 9 : 14;
+        for (let i = 1; i <= rings; i++) {
           const rad = ((i * 22 + t * 34) % 310) + 6;
           const alpha = Math.max(0, 1 - rad / 315) * 0.55;
           ctx.strokeStyle = `rgba(139, 124, 255, ${alpha})`;
@@ -204,15 +206,13 @@ function InteractivePhysicsCanvas({
           ctx.stroke();
         }
 
-        // Sensor focal markers
         [s1, s2].forEach((s) => {
           ctx.fillStyle = '#F4F1EA';
           ctx.beginPath();
-          ctx.arc(s.x, s.y, 4, 0, Math.PI * 2);
+          ctx.arc(s.x, s.y, 3.8, 0, Math.PI * 2);
           ctx.fill();
         });
       } else {
-        // Coupled Scientific Network Graph
         for (const n of nodes) {
           n.x += n.vx;
           n.y += n.vy;
@@ -267,27 +267,30 @@ function InteractivePhysicsCanvas({
   }, []);
 
   return (
-    <div className="relative h-full w-full min-h-[240px] lg:min-h-[320px] rounded-2xl overflow-hidden border border-white/10 bg-[#06090e]">
+    <div className="relative h-full w-full min-h-[220px] sm:min-h-[260px] lg:min-h-[320px] rounded-2xl overflow-hidden border border-white/10 bg-[#06090e]">
       <canvas
         ref={canvasRef}
         data-cursor="INTERACT"
         className="w-full h-full block cursor-crosshair"
       />
-      <div className="pointer-events-none absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] uppercase text-[#98A2B3]">
-        <span className="rounded-full bg-black/50 backdrop-blur-md px-2.5 py-1 border border-white/10">
-          LIVE SIMULATION // {mode.toUpperCase()}
+      <div className="pointer-events-none absolute top-3 left-3 right-3 flex items-center justify-between gap-2 text-[10px] tracking-wider text-[#98A2B3]">
+        <span className="rounded-full bg-black/55 backdrop-blur-md px-2.5 py-1 border border-white/10 font-mono">
+          {liveSimLabel} {mode.toUpperCase()}
         </span>
-        <span className="rounded-full bg-black/50 backdrop-blur-md px-2.5 py-1 border border-white/10 text-[#2EE6D6]">
-          MOVE POINTER TO PERTURB
+        <span className="hidden sm:inline rounded-full bg-black/55 backdrop-blur-md px-2.5 py-1 border border-white/10 text-[#2EE6D6]">
+          {interactHint}
         </span>
       </div>
     </div>
   );
 }
 
-export function PinnedLabShowcase() {
+export function PinnedLabShowcase({ lang }: { lang: Lang }) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const profile = PROFILE_BY_LANG[lang];
+  const copy = UI_COPY[lang];
+  const isRtl = lang === 'fa';
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -296,7 +299,7 @@ export function PinnedLabShowcase() {
 
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
-    const count = PROFILE.pillars.length;
+    const count = profile.pillars.length;
     const idx = Math.min(count - 1, Math.max(0, Math.floor(latest * count * 0.999)));
     setActiveIndex(idx);
   });
@@ -308,37 +311,42 @@ export function PinnedLabShowcase() {
     if (!el) return;
     const top = el.offsetTop;
     const scrollable = el.offsetHeight - window.innerHeight;
-    const targetY = top + ((idx + 0.18) / PROFILE.pillars.length) * scrollable;
+    const targetY = top + ((idx + 0.18) / profile.pillars.length) * scrollable;
     window.scrollTo({ top: targetY, behavior: 'smooth' });
   };
 
-  const active = PROFILE.pillars[activeIndex];
+  const active = profile.pillars[activeIndex];
 
   return (
     <section
       id="laboratory"
       ref={sectionRef}
-      className="relative h-auto lg:h-[300vh] px-5 sm:px-8 lg:px-12 mt-8"
+      className="relative h-auto lg:h-[300vh] px-4 sm:px-8 lg:px-12 mt-4 sm:mt-8"
     >
-      <div className="relative lg:sticky lg:top-0 lg:h-screen flex flex-col justify-start lg:justify-center pt-24 pb-10 lg:pt-22 lg:pb-6 lg:overflow-hidden">
+      <div className="relative lg:sticky lg:top-0 lg:h-screen flex flex-col justify-start lg:justify-center pt-16 pb-10 lg:pt-20 lg:pb-6 lg:overflow-hidden">
         <div className="mx-auto w-full max-w-6xl">
-          {/* Header & Pillar Stepper */}
+          {/* Header & Stepper */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-4">
             <div>
-              <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#2EE6D6] mb-1">
-                01 // SCROLL-DRIVEN RESEARCH LABORATORY
+              <div className="text-[11px] tracking-[0.16em] uppercase text-[#2EE6D6] mb-1">
+                {copy.lab.eyebrow}
               </div>
               <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-[#F4F1EA]">
-                Four Pillars of{' '}
-                <span className="font-serif italic font-normal text-[#F5B971]">
-                  Inquiry
+                {copy.lab.headingLead}{' '}
+                <span
+                  className={
+                    isRtl
+                      ? 'text-[#F5B971] font-bold'
+                      : 'font-serif italic font-normal text-[#F5B971]'
+                  }
+                >
+                  {copy.lab.headingAccent}
                 </span>
               </h2>
             </div>
 
-            {/* Interactive Stepper Pills */}
             <div className="flex items-center gap-2 flex-wrap">
-              {PROFILE.pillars.map((pillar, i) => {
+              {profile.pillars.map((pillar, i) => {
                 const selected = i === activeIndex;
                 return (
                   <button
@@ -357,38 +365,42 @@ export function PinnedLabShowcase() {
             </div>
           </div>
 
-          {/* Main 3D Stage */}
-          <div className="glass-panel rounded-3xl p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-stretch">
-            {/* Left Narrative Panel */}
+          {/* Main Stage */}
+          <div className="glass-panel rounded-3xl p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-stretch">
             <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
               <div>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3 gap-2">
                   <span
-                    className="font-mono text-xs tracking-[0.22em] uppercase px-3 py-1 rounded-full border"
+                    className="text-xs tracking-wider px-3 py-1 rounded-full border font-medium"
                     style={{
                       color: active.accent,
                       borderColor: `${active.accent}44`,
                       backgroundColor: `${active.accent}14`,
                     }}
                   >
-                    PILLAR {active.index} / 0{PROFILE.pillars.length}
+                    {copy.lab.pillarLabel} {active.index} {copy.lab.ofLabel}{' '}
+                    {isRtl ? '۰۴' : '04'}
                   </span>
-                  <span className="font-mono text-[11px] text-[#98A2B3]">
-                    SCROLL TO MORPH ↓
+                  <span className="hidden lg:inline text-[11px] text-[#98A2B3]">
+                    {copy.lab.scrollMorph}
                   </span>
                 </div>
 
                 <motion.div
                   key={active.id}
-                  initial={{ opacity: 0, y: 14 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="space-y-3"
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="space-y-2.5"
                 >
-                  <h3 className="text-2xl sm:text-3xl font-semibold text-[#F4F1EA] leading-tight">
+                  <h3 className="text-xl sm:text-3xl font-semibold text-[#F4F1EA] leading-snug">
                     {active.title}
                   </h3>
-                  <p className="font-serif italic text-lg sm:text-xl text-[#98A2B3]">
+                  <p
+                    className={`text-base sm:text-xl text-[#98A2B3] ${
+                      isRtl ? '' : 'font-serif italic'
+                    }`}
+                  >
                     {active.subtitle}
                   </p>
                   <p className="text-sm sm:text-base text-[#98A2B3] leading-relaxed pt-1">
@@ -397,23 +409,24 @@ export function PinnedLabShowcase() {
                 </motion.div>
               </div>
 
-              <div className="space-y-4">
-                {/* Equation Callout */}
-                <div className="rounded-xl bg-black/50 border border-white/10 px-4 py-3 font-mono text-xs sm:text-[13px] text-[#2EE6D6] overflow-x-auto whitespace-nowrap">
+              <div className="space-y-3.5">
+                <div
+                  dir="ltr"
+                  className="rounded-xl bg-black/50 border border-white/10 px-3.5 py-2.5 font-mono text-[11px] sm:text-[13px] text-[#2EE6D6] overflow-x-auto whitespace-nowrap"
+                >
                   {active.equation}
                 </div>
 
-                {/* Metrics Row */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                   {active.metrics.map((m) => (
                     <div
                       key={m.label}
-                      className="rounded-xl bg-white/[0.03] border border-white/8 p-3"
+                      className="rounded-xl bg-white/[0.03] border border-white/8 p-2.5 sm:p-3"
                     >
-                      <div className="text-base sm:text-lg font-semibold text-[#F4F1EA] tabular-nums">
+                      <div className="text-xs sm:text-base font-semibold text-[#F4F1EA]">
                         {m.value}
                       </div>
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-[#98A2B3] mt-0.5">
+                      <div className="text-[10px] text-[#98A2B3] mt-0.5">
                         {m.label}
                       </div>
                     </div>
@@ -422,25 +435,28 @@ export function PinnedLabShowcase() {
               </div>
             </div>
 
-            {/* Right Interactive Simulation Canvas */}
             <div className="lg:col-span-6 flex">
               <InteractivePhysicsCanvas
                 mode={active.simulationMode}
                 accent={active.accent}
+                liveSimLabel={copy.lab.liveSim}
+                interactHint={copy.lab.interactHint}
               />
             </div>
           </div>
 
-          {/* Scroll Progress Rail */}
-          <div className="mt-4 flex items-center gap-4">
+          <div className="hidden lg:flex mt-4 items-center gap-4">
             <div className="flex-1 h-[2px] bg-white/10 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-[#2EE6D6] via-[#F5B971] to-[#8B7CFF]"
-                style={{ scaleX: scrollYProgress, transformOrigin: '0% 50%' }}
+                className={`h-full bg-gradient-to-r from-[#2EE6D6] via-[#F5B971] to-[#8B7CFF] ${
+                  isRtl ? 'origin-right' : 'origin-left'
+                }`}
+                style={{ scaleX: scrollYProgress }}
               />
             </div>
-            <span className="font-mono text-[10px] tracking-[0.2em] text-[#98A2B3] uppercase">
-              Stage {active.index} of 0{PROFILE.pillars.length}
+            <span className="text-[11px] tracking-wider text-[#98A2B3]">
+              {copy.lab.stageLabel} {active.index} {copy.lab.ofLabel}{' '}
+              {isRtl ? '۰۴' : '04'}
             </span>
           </div>
         </div>

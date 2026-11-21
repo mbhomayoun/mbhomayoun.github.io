@@ -72,7 +72,6 @@ const CORE_VERTEX = /* glsl */ `
     float pointerInf = dot(normalize(position.xy + 0.001), normalize(uPointer + 0.001));
     disp += max(pointerInf, 0.0) * length(uPointer) * 0.07;
 
-    // Smooth finite-difference displaced surface normal for silky contours
     float eps = 0.025;
     vec3 tangent1 = normalize(cross(normal, abs(normal.y) < 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
     vec3 tangent2 = normalize(cross(normal, tangent1));
@@ -182,12 +181,14 @@ const PARTICLE_FRAGMENT = /* glsl */ `
 interface Hero3DSceneProps {
   mode: Hero3DMode;
   reducedMotion: boolean;
+  isRtl: boolean;
 }
 
-export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
+export function Hero3DScene({ mode, reducedMotion, isRtl }: Hero3DSceneProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const modeRef = useRef<Hero3DMode>(mode);
   const reducedRef = useRef<boolean>(reducedMotion);
+  const rtlRef = useRef<boolean>(isRtl);
 
   useEffect(() => {
     modeRef.current = mode;
@@ -198,21 +199,29 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
   }, [reducedMotion]);
 
   useEffect(() => {
+    rtlRef.current = isRtl;
+  }, [isRtl]);
+
+  useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
+
+    const isMobile = window.innerWidth < 768;
 
     let renderer: THREE.WebGLRenderer | null = null;
     try {
       renderer = new THREE.WebGLRenderer({
         alpha: true,
-        antialias: true,
-        powerPreference: 'high-performance',
+        antialias: !isMobile,
+        powerPreference: isMobile ? 'low-power' : 'high-performance',
       });
     } catch {
       return;
     }
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = isMobile
+      ? Math.min(window.devicePixelRatio || 1, 1.25)
+      : Math.min(window.devicePixelRatio || 1, 2);
     const initW = container.clientWidth || window.innerWidth;
     const initH = container.clientHeight || window.innerHeight;
     renderer.setPixelRatio(dpr);
@@ -225,28 +234,38 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
     const camera = new THREE.PerspectiveCamera(44, initW / Math.max(initH, 1), 0.1, 100);
     camera.position.set(0, 0.05, 6.8);
 
-    // Sculpture group (framed asymmetrically right-of-center on widescreen so text floats over space)
     const rootGroup = new THREE.Group();
     scene.add(rootGroup);
 
-    // Ambient full-viewport particle field spanning the entire Hero space
     const ambientGroup = new THREE.Group();
     scene.add(ambientGroup);
 
-    const updateSpatialPlacement = (w: number, h: number) => {
+    let targetPosX = 1.85;
+    let targetPosY = 0.08;
+    let targetPosZ = -0.3;
+    let targetScale = 1.12;
+
+    const computeSpatialTargets = (w: number, h: number) => {
       const aspect = w / Math.max(h, 1);
       if (aspect >= 1.15) {
-        rootGroup.position.set(1.85, 0.08, -0.3);
-        rootGroup.scale.setScalar(1.12);
+        targetPosX = rtlRef.current ? -1.85 : 1.85;
+        targetPosY = 0.08;
+        targetPosZ = -0.3;
+        targetScale = 1.12;
       } else {
-        rootGroup.position.set(0, 0.45, -1.2);
-        rootGroup.scale.setScalar(0.92);
+        targetPosX = 0;
+        targetPosY = 0.55;
+        targetPosZ = -1.45;
+        targetScale = 0.86;
       }
     };
-    updateSpatialPlacement(initW, initH);
+    computeSpatialTargets(initW, initH);
+    rootGroup.position.set(targetPosX, targetPosY, targetPosZ);
+    rootGroup.scale.setScalar(targetScale);
 
-    // 1. Central Deforming 3D Geomechanical Stress Core (high-density smooth sphere)
-    const coreGeo = new THREE.SphereGeometry(1.48, 128, 128);
+    // Lightweight segments on mobile for effortless 60fps
+    const segs = isMobile ? 52 : 120;
+    const coreGeo = new THREE.SphereGeometry(1.48, segs, segs);
     const coreUniforms = {
       uTime: { value: 0 },
       uAmp: { value: 0.22 },
@@ -263,50 +282,53 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
     const coreMesh = new THREE.Mesh(coreGeo, coreMat);
     rootGroup.add(coreMesh);
 
-    // 2. Outer Geodesic Stress-Tensor Cage
-    const cageGeo = new THREE.IcosahedronGeometry(2.05, 2);
+    const cageGeo = new THREE.IcosahedronGeometry(2.05, isMobile ? 1 : 2);
     const cageMat = new THREE.MeshBasicMaterial({
       color: 0x2ee6d6,
       wireframe: true,
       transparent: true,
-      opacity: 0.16,
+      opacity: isMobile ? 0.13 : 0.16,
     });
     const cageMesh = new THREE.Mesh(cageGeo, cageMat);
     rootGroup.add(cageMesh);
 
-    // 3. Wellbore Orbital Gimbal Rings
-    const ring1Geo = new THREE.TorusGeometry(2.5, 0.012, 12, 140);
+    const ring1Geo = new THREE.TorusGeometry(2.5, 0.012, 10, isMobile ? 80 : 140);
     const ring1Mat = new THREE.MeshBasicMaterial({
       color: 0xf5b971,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.48,
     });
     const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
     ring1.rotation.set(Math.PI * 0.36, Math.PI * 0.12, 0);
     rootGroup.add(ring1);
 
-    const ring2Geo = new THREE.TorusGeometry(2.92, 0.01, 12, 140);
+    const ring2Geo = new THREE.TorusGeometry(2.92, 0.01, 10, isMobile ? 80 : 140);
     const ring2Mat = new THREE.MeshBasicMaterial({
       color: 0x8b7cff,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.4,
     });
     const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
     ring2.rotation.set(-Math.PI * 0.28, Math.PI * 0.32, 0.4);
     rootGroup.add(ring2);
 
-    // 4. Inner Acoustic Helix Knot
-    const knotGeo = new THREE.TorusKnotGeometry(1.72, 0.016, 170, 12, 2, 3);
+    const knotGeo = new THREE.TorusKnotGeometry(
+      1.72,
+      0.015,
+      isMobile ? 90 : 170,
+      10,
+      2,
+      3
+    );
     const knotMat = new THREE.MeshBasicMaterial({
       color: 0x2ee6d6,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.2,
     });
     const knotMesh = new THREE.Mesh(knotGeo, knotMat);
     rootGroup.add(knotMesh);
 
-    // 5. Core Volumetric Particles (2,200 points) + Fullscreen Ambient Dust (1,200 points)
-    const coreCount = 2200;
+    const coreCount = isMobile ? 650 : 2100;
     const corePos = new Float32Array(coreCount * 3);
     const coreScales = new Float32Array(coreCount);
     const corePhases = new Float32Array(coreCount);
@@ -318,7 +340,7 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
       corePos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       corePos[i * 3 + 1] = r * Math.cos(phi) * 0.92;
       corePos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      coreScales[i] = 1.4 + Math.random() * 2.8;
+      coreScales[i] = 1.4 + Math.random() * 2.6;
       corePhases[i] = Math.random();
     }
 
@@ -343,8 +365,7 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
     const particles = new THREE.Points(particleGeo, particleMat);
     rootGroup.add(particles);
 
-    // Wide ambient particles filling full 100vw x 100vh depth
-    const ambCount = 1200;
+    const ambCount = isMobile ? 260 : 1100;
     const ambPos = new Float32Array(ambCount * 3);
     const ambScales = new Float32Array(ambCount);
     const ambPhases = new Float32Array(ambCount);
@@ -352,7 +373,7 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
       ambPos[i * 3] = (Math.random() - 0.5) * 14.0;
       ambPos[i * 3 + 1] = (Math.random() - 0.5) * 8.0;
       ambPos[i * 3 + 2] = (Math.random() - 0.5) * 6.0 - 1.0;
-      ambScales[i] = 1.0 + Math.random() * 2.2;
+      ambScales[i] = 1.0 + Math.random() * 2.1;
       ambPhases[i] = Math.random();
     }
     const ambGeo = new THREE.BufferGeometry();
@@ -362,7 +383,6 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
     const ambPoints = new THREE.Points(ambGeo, particleMat);
     ambientGroup.add(ambPoints);
 
-    // Pointer drag + parallax state across full Hero
     let isDragging = false;
     let dragStart = { x: 0, y: 0 };
     let targetRot = { x: 0.14, y: -0.2 };
@@ -371,6 +391,7 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
     let scrollFactor = 0;
 
     const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return; // Keep native mobile touch scroll ultra smooth
       const target = e.target as HTMLElement | null;
       if (target?.closest('button, a, input, textarea, [role="dialog"]')) return;
       if (window.scrollY > window.innerHeight * 0.9) return;
@@ -379,6 +400,7 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
     };
 
     const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
       pointerNorm.x = (e.clientX / Math.max(window.innerWidth, 1)) * 2 - 1;
       pointerNorm.y = -((e.clientY / Math.max(window.innerHeight, 1)) * 2 - 1);
 
@@ -406,7 +428,7 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-      updateSpatialPlacement(w, h);
+      computeSpatialTargets(w, h);
     };
 
     window.addEventListener('pointerdown', onPointerDown);
@@ -422,6 +444,14 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
       const t = reducedRef.current ? 1.2 : (now - start) * 0.001;
       const mIdx =
         modeRef.current === 'stress' ? 0 : modeRef.current === 'cfd' ? 1 : 2;
+
+      computeSpatialTargets(
+        container.clientWidth || window.innerWidth,
+        container.clientHeight || window.innerHeight
+      );
+      rootGroup.position.x += (targetPosX - rootGroup.position.x) * 0.08;
+      rootGroup.position.y += (targetPosY - rootGroup.position.y) * 0.08;
+      rootGroup.position.z += (targetPosZ - rootGroup.position.z) * 0.08;
 
       coreUniforms.uTime.value = t;
       coreUniforms.uMode.value = mIdx;
@@ -440,10 +470,10 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
       particleUniforms.uMode.value = mIdx;
 
       if (!isDragging && !reducedRef.current) {
-        targetRot.y += 0.0028;
+        targetRot.y += isMobile ? 0.0022 : 0.0028;
       }
-      currentRot.x += (targetRot.x + pointerNorm.y * 0.22 - currentRot.x) * 0.06;
-      currentRot.y += (targetRot.y + pointerNorm.x * 0.32 - currentRot.y) * 0.06;
+      currentRot.x += (targetRot.x + pointerNorm.y * 0.2 - currentRot.x) * 0.06;
+      currentRot.y += (targetRot.y + pointerNorm.x * 0.3 - currentRot.y) * 0.06;
 
       rootGroup.rotation.x = currentRot.x;
       rootGroup.rotation.y = currentRot.y + scrollFactor * 0.9;
@@ -457,8 +487,8 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
       knotMesh.rotation.x = t * 0.14;
       knotMesh.rotation.y = -t * 0.2;
 
-      camera.position.z = 6.8 - scrollFactor * 1.55;
-      camera.position.y = 0.05 - scrollFactor * 0.35;
+      camera.position.z = 6.8 - scrollFactor * 1.45;
+      camera.position.y = 0.05 - scrollFactor * 0.32;
 
       renderer?.render(scene, camera);
       rafId = requestAnimationFrame(animate);
@@ -495,6 +525,7 @@ export function Hero3DScene({ mode, reducedMotion }: Hero3DSceneProps) {
       ref={mountRef}
       data-cursor="ORBIT 3D"
       aria-label="Fullscreen Interactive 3D Geomechanical Stress & Fluid Observatory"
+      style={{ touchAction: 'pan-y' }}
       className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
     />
   );

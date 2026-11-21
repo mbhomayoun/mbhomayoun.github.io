@@ -5,19 +5,20 @@ import {
   Compass,
   Copy,
   FlaskConical,
+  Globe,
   Search,
   Sparkles,
   Terminal,
   X,
 } from 'lucide-react';
-import { PROFILE, ShaderMode } from '../data/profile';
+import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
 
 interface CommandPaletteProps {
+  lang: Lang;
+  onToggleLang: () => void;
   open: boolean;
   onClose: () => void;
   onNavigate: (sectionId: string) => void;
-  shaderMode: ShaderMode;
-  onSetShaderMode: (mode: ShaderMode) => void;
   reducedMotion: boolean;
   onToggleReducedMotion: () => void;
 }
@@ -25,22 +26,25 @@ interface CommandPaletteProps {
 interface CommandAction {
   id: string;
   group: string;
+  kind: 'nav' | 'lang' | 'motion' | 'copy' | 'proj' | 'pub';
   label: string;
   hint: string;
   run: () => void;
 }
 
 export function CommandPalette({
+  lang,
+  onToggleLang,
   open,
   onClose,
   onNavigate,
-  shaderMode,
-  onSetShaderMode,
   reducedMotion,
   onToggleReducedMotion,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [toast, setToast] = useState<string | null>(null);
+  const profile = PROFILE_BY_LANG[lang];
+  const copy = UI_COPY[lang];
 
   useEffect(() => {
     if (!open) setQuery('');
@@ -60,125 +64,70 @@ export function CommandPalette({
   }, [open, onClose]);
 
   const actions = useMemo<CommandAction[]>(() => {
-    const navActions: CommandAction[] = [
-      {
-        id: 'nav-hero',
-        group: 'Navigate',
-        label: 'Observatory Home',
-        hint: 'Section 00',
-        run: () => onNavigate('hero'),
-      },
-      {
-        id: 'nav-lab',
-        group: 'Navigate',
-        label: 'Scroll-Driven Research Laboratory',
-        hint: 'Section 01',
-        run: () => onNavigate('laboratory'),
-      },
-      {
-        id: 'nav-projects',
-        group: 'Navigate',
-        label: 'Selected Systems & Solvers',
-        hint: 'Section 02',
-        run: () => onNavigate('projects'),
-      },
-      {
-        id: 'nav-papers',
-        group: 'Navigate',
-        label: 'Academic Publications & Citations',
-        hint: 'Section 03',
-        run: () => onNavigate('publications'),
-      },
-      {
-        id: 'nav-chronicle',
-        group: 'Navigate',
-        label: 'Career & Academic Chronicle',
-        hint: 'Section 04',
-        run: () => onNavigate('chronicle'),
-      },
-      {
-        id: 'nav-writing',
-        group: 'Navigate',
-        label: 'Technical Notes & Dispatches',
-        hint: 'Section 05',
-        run: () => onNavigate('writing'),
-      },
-      {
-        id: 'nav-contact',
-        group: 'Navigate',
-        label: 'Contact & Collaborations',
-        hint: 'Section 06',
-        run: () => onNavigate('contact'),
-      },
-    ];
-
-    const shaderActions: CommandAction[] = [
-      {
-        id: 'shader-interference',
-        group: 'Visual Field',
-        label: 'Shader Mode: Topographic Interference',
-        hint: shaderMode === 'interference' ? 'Active' : 'Switch',
-        run: () => onSetShaderMode('interference'),
-      },
-      {
-        id: 'shader-lattice',
-        group: 'Visual Field',
-        label: 'Shader Mode: Quantum Harmonic Lattice',
-        hint: shaderMode === 'lattice' ? 'Active' : 'Switch',
-        run: () => onSetShaderMode('lattice'),
-      },
-      {
-        id: 'shader-aurora',
-        group: 'Visual Field',
-        label: 'Shader Mode: Bioluminescent Aurora',
-        hint: shaderMode === 'aurora' ? 'Active' : 'Switch',
-        run: () => onSetShaderMode('aurora'),
-      },
-      {
-        id: 'toggle-motion',
-        group: 'Visual Field',
-        label: reducedMotion
-          ? 'Enable Full Shader & Scroll Motion'
-          : 'Enable Low-Motion Accessibility Mode',
-        hint: reducedMotion ? 'Reduced' : 'Full',
-        run: () => onToggleReducedMotion(),
-      },
-    ];
+    const navActions: CommandAction[] = copy.command.navLabels.map((n) => ({
+      id: `nav-${n.id}`,
+      group: copy.command.groups.navigate,
+      kind: 'nav',
+      label: n.label,
+      hint: n.hint,
+      run: () => onNavigate(n.id),
+    }));
 
     const utilityActions: CommandAction[] = [
       {
+        id: 'switch-lang',
+        group: copy.command.groups.utilities,
+        kind: 'lang',
+        label: copy.langSwitchLabel,
+        hint: copy.langSwitchShort,
+        run: () => onToggleLang(),
+      },
+      {
+        id: 'toggle-motion',
+        group: copy.command.groups.visual,
+        kind: 'motion',
+        label: reducedMotion
+          ? copy.command.motionEnableFull
+          : copy.command.motionEnableLow,
+        hint: reducedMotion ? copy.command.motionActive : copy.command.motionFull,
+        run: () => onToggleReducedMotion(),
+      },
+      {
         id: 'copy-email',
-        group: 'Quick Utilities',
-        label: `Copy Email (${PROFILE.email})`,
-        hint: 'Clipboard',
+        group: copy.command.groups.utilities,
+        kind: 'copy',
+        label: `${copy.command.copyEmailPrefix} (${profile.email})`,
+        hint: copy.contact.copy,
         run: () => {
-          navigator.clipboard.writeText(PROFILE.email);
-          setToast('Email copied to clipboard');
+          navigator.clipboard.writeText(profile.email);
+          setToast(copy.command.copiedEmail);
           setTimeout(() => setToast(null), 1600);
         },
       },
-      ...PROFILE.projects.map((p) => ({
+      ...profile.projects.map((p) => ({
         id: `proj-${p.id}`,
-        group: 'Jump to Project',
-        label: `${p.title} — ${p.category}`,
+        group: copy.command.groups.projects,
+        kind: 'proj' as const,
+        label: `${p.title} — ${p.categoryLabel}`,
         hint: p.year,
         run: () => onNavigate('projects'),
       })),
-      ...PROFILE.publications.map((pub) => ({
+      ...profile.publications.map((pub) => ({
         id: `pub-${pub.id}`,
-        group: 'Copy Citation',
-        label: `BibTeX: ${pub.title}`,
+        group: copy.command.groups.citations,
+        kind: 'pub' as const,
+        label: `${copy.command.bibtexPrefix} ${pub.title}`,
         hint: `${pub.year}`,
         run: () => {
           navigator.clipboard.writeText(pub.bibtex);
-          setToast('BibTeX citation copied');
+          setToast(copy.command.copiedBibtex);
           setTimeout(() => setToast(null), 1600);
         },
       })),
     ];
 
-    return [...navActions, ...shaderActions, ...utilityActions];
-  }, [onNavigate, onSetShaderMode, onToggleReducedMotion, reducedMotion, shaderMode]);
+    return [...navActions, ...utilityActions];
+  }, [copy, onNavigate, onToggleLang, onToggleReducedMotion, profile, reducedMotion]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -193,21 +142,23 @@ export function CommandPalette({
     <AnimatePresence>
       {open && (
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={copy.indexLabel}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-[95] bg-black/75 backdrop-blur-md flex items-start justify-center pt-[12vh] px-4"
+          className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-md flex items-start justify-center pt-[10vh] px-4"
         >
           <motion.div
-            initial={{ opacity: 0, y: -16, scale: 0.97 }}
+            initial={{ opacity: 0, y: -14, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 360, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
             className="glass-panel w-full max-w-xl rounded-2xl overflow-hidden border border-white/15 shadow-2xl"
           >
-            {/* Input Bar */}
             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/10">
               <Search className="w-4 h-4 text-[#2EE6D6] shrink-0" />
               <input
@@ -215,7 +166,7 @@ export function CommandPalette({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Jump to section, switch WebGL shader, or copy BibTeX..."
+                placeholder={copy.command.placeholder}
                 className="w-full bg-transparent text-sm text-[#F4F1EA] placeholder:text-[#98A2B3]/70 focus:outline-none"
               />
               <button
@@ -227,37 +178,40 @@ export function CommandPalette({
             </div>
 
             {toast && (
-              <div className="px-4 py-2 bg-[#2EE6D6]/15 text-[#2EE6D6] font-mono text-xs border-b border-[#2EE6D6]/25">
+              <div className="px-4 py-2 bg-[#2EE6D6]/15 text-[#2EE6D6] text-xs border-b border-[#2EE6D6]/25">
                 ✓ {toast}
               </div>
             )}
 
-            {/* Action List */}
-            <div className="max-h-[54vh] overflow-y-auto p-2 space-y-1">
+            <div className="max-h-[58vh] overflow-y-auto p-2 space-y-1">
               {filtered.map((item) => {
                 const Icon =
-                  item.group === 'Navigate'
+                  item.kind === 'nav'
                     ? Compass
-                    : item.group === 'Visual Field'
-                      ? Sparkles
-                      : item.group === 'Copy Citation'
-                        ? BookOpen
-                        : item.group === 'Jump to Project'
-                          ? FlaskConical
-                          : item.id === 'copy-email'
-                            ? Copy
-                            : Terminal;
+                    : item.kind === 'lang'
+                      ? Globe
+                      : item.kind === 'motion'
+                        ? Sparkles
+                        : item.kind === 'pub'
+                          ? BookOpen
+                          : item.kind === 'proj'
+                            ? FlaskConical
+                            : item.kind === 'copy'
+                              ? Copy
+                              : Terminal;
 
                 return (
                   <button
                     key={item.id}
                     onClick={() => {
                       item.run();
-                      if (!item.id.startsWith('copy-') && !item.id.startsWith('pub-')) {
+                      if (item.kind !== 'copy' && item.kind !== 'pub') {
                         onClose();
                       }
                     }}
-                    className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-white/[0.07] transition-colors cursor-pointer group"
+                    className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl ${
+                      lang === 'fa' ? 'text-right' : 'text-left'
+                    } hover:bg-white/[0.07] transition-colors cursor-pointer group`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <Icon className="w-4 h-4 text-[#98A2B3] group-hover:text-[#2EE6D6] shrink-0" />
@@ -265,7 +219,7 @@ export function CommandPalette({
                         <div className="text-sm text-[#F4F1EA] truncate">
                           {item.label}
                         </div>
-                        <div className="font-mono text-[10px] uppercase tracking-wider text-[#98A2B3]">
+                        <div className="text-[10px] tracking-wider text-[#98A2B3]">
                           {item.group}
                         </div>
                       </div>
@@ -278,8 +232,8 @@ export function CommandPalette({
               })}
 
               {filtered.length === 0 && (
-                <div className="py-8 text-center text-xs font-mono text-[#98A2B3]">
-                  No matching commands.
+                <div className="py-8 text-center text-xs text-[#98A2B3]">
+                  {copy.command.empty}
                 </div>
               )}
             </div>

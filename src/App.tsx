@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Lenis from 'lenis';
 import { MotionConfig } from 'framer-motion';
-import { ShaderMode } from './data/profile';
+import { Lang, PROFILE_BY_LANG } from './data/profile';
 import { Preloader } from './components/Preloader';
 import { WebGLBackdrop } from './components/WebGLBackdrop';
 import { MagneticCursor } from './components/MagneticCursor';
@@ -15,12 +15,14 @@ import { WritingSection } from './components/WritingSection';
 import { ContactSection } from './components/ContactSection';
 import { CommandPalette } from './components/CommandPalette';
 
-const SHADER_CYCLE: ShaderMode[] = ['interference', 'lattice', 'aurora'];
-
 export function App() {
   const [ready, setReady] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
-  const [shaderMode, setShaderMode] = useState<ShaderMode>('interference');
+  const [lang, setLang] = useState<Lang>(() => {
+    if (typeof window === 'undefined') return 'en';
+    const saved = window.localStorage.getItem('observatory-lang');
+    return saved === 'fa' ? 'fa' : 'en';
+  });
   const [reducedMotion, setReducedMotion] = useState(() =>
     typeof window !== 'undefined'
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -30,14 +32,24 @@ export function App() {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    if (reducedMotion) {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+    document.title = PROFILE_BY_LANG[lang].pageTitle;
+    window.localStorage.setItem('observatory-lang', lang);
+  }, [lang]);
+
+  useEffect(() => {
+    // Enable Lenis smooth inertia on desktop fine pointers; leave native momentum scroll on mobile touchscreens
+    const isFinePointer = window.matchMedia('(pointer: fine)').matches;
+    const isDesktop = window.innerWidth >= 1024;
+    if (reducedMotion || !isFinePointer || !isDesktop) {
       lenisRef.current?.destroy();
       lenisRef.current = null;
       return;
     }
 
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.15,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
@@ -72,52 +84,50 @@ export function App() {
     const el = document.getElementById(sectionId);
     if (!el) return;
     if (lenisRef.current) {
-      lenisRef.current.scrollTo(el, { offset: 0, duration: 1.3 });
+      lenisRef.current.scrollTo(el, { offset: 0, duration: 1.25 });
     } else {
       el.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
 
-  const cycleShader = useCallback(() => {
-    setShaderMode((prev) => {
-      const idx = SHADER_CYCLE.indexOf(prev);
-      return SHADER_CYCLE[(idx + 1) % SHADER_CYCLE.length];
-    });
+  const toggleLang = useCallback(() => {
+    setLang((prev) => (prev === 'en' ? 'fa' : 'en'));
   }, []);
 
   return (
     <MotionConfig reducedMotion={reducedMotion ? 'always' : 'user'}>
-      <Preloader onComplete={() => setReady(true)} />
-      <WebGLBackdrop mode={shaderMode} reducedMotion={reducedMotion} />
+      <Preloader onComplete={() => setReady(true)} lang={lang} />
+      <WebGLBackdrop mode="interference" reducedMotion={reducedMotion} />
       <MagneticCursor />
 
       <Navbar
+        lang={lang}
+        onToggleLang={toggleLang}
         onNavigate={navigateTo}
         onOpenCommand={() => setCmdOpen(true)}
-        shaderMode={shaderMode}
-        onCycleShader={cycleShader}
       />
 
       <main className="relative">
         <HeroSection
+          lang={lang}
           onNavigate={navigateTo}
           ready={ready}
           reducedMotion={reducedMotion}
         />
-        <PinnedLabShowcase />
-        <ProjectsSection />
-        <PublicationsSection />
-        <TimelineSection />
-        <WritingSection />
-        <ContactSection />
+        <PinnedLabShowcase lang={lang} />
+        <ProjectsSection lang={lang} />
+        <PublicationsSection lang={lang} />
+        <TimelineSection lang={lang} />
+        <WritingSection lang={lang} />
+        <ContactSection lang={lang} />
       </main>
 
       <CommandPalette
+        lang={lang}
+        onToggleLang={toggleLang}
         open={cmdOpen}
         onClose={() => setCmdOpen(false)}
         onNavigate={navigateTo}
-        shaderMode={shaderMode}
-        onSetShaderMode={setShaderMode}
         reducedMotion={reducedMotion}
         onToggleReducedMotion={() => setReducedMotion((v) => !v)}
       />

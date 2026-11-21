@@ -209,7 +209,8 @@ export function WebGLBackdrop({ mode, reducedMotion }: WebGLBackdropProps) {
     };
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const isMobile = window.innerWidth < 768;
+      const dpr = isMobile ? 0.8 : Math.min(window.devicePixelRatio || 1, 1.35);
       canvas.width = Math.floor(window.innerWidth * dpr);
       canvas.height = Math.floor(window.innerHeight * dpr);
       gl.viewport(0, 0, canvas.width, canvas.height);
