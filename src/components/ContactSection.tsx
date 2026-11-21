@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Check, Copy, Lock, Mail, Send } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
+import { formatNum } from '../utils/format';
 
 export function ContactSection({
   lang,
@@ -253,7 +254,8 @@ export function ContactSection({
 
         <footer className="mt-16 sm:mt-24 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#98A2B3]">
           <div>
-            © {new Date().getFullYear()} {profile.fullName} — {copy.contact.footerSuffix}
+            © {formatNum(new Date().getFullYear(), lang)} {profile.fullName} —{' '}
+            {copy.contact.footerSuffix}
           </div>
           <div className="flex items-center gap-3">
             <span>{copy.contact.footerShortcut}</span>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { Lang, PROFILE_BY_LANG, ResearchPillar, UI_COPY } from '../data/profile';
+import { LatexEquation } from './LatexEquation';
 
 type SimMode = ResearchPillar['simulationMode'];
 
@@ -410,12 +411,12 @@ export function PinnedLabShowcase({ lang }: { lang: Lang }) {
               </div>
 
               <div className="space-y-3.5">
-                <div
-                  dir="ltr"
-                  className="rounded-xl bg-black/50 border border-white/10 px-3.5 py-2.5 font-mono text-[11px] sm:text-[13px] text-[#2EE6D6] overflow-x-auto whitespace-nowrap"
-                >
-                  {active.equation}
-                </div>
+                <LatexEquation
+                  latex={active.equation}
+                  accent={active.accent}
+                  label={isRtl ? 'مدل ریاضی // LaTeX' : 'GOVERNING FORMULATION // LaTeX'}
+                  compact
+                />
 
                 <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                   {active.metrics.map((m) => (

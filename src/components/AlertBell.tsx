@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, CheckCheck, ExternalLink, ShieldAlert } from 'lucide-react';
 import { Lang } from '../data/profile';
 import { CmsPost } from '../types/cms';
+import { formatDateForLang, formatNum } from '../utils/format';
 
 interface AlertBellProps {
   lang: Lang;
@@ -57,7 +58,7 @@ export function AlertBell({
         <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-[#F5B971] text-[#050608] font-mono text-[10px] font-bold flex items-center justify-center shadow-[0_0_12px_rgba(245,185,113,0.85)]">
-            {unreadCount}
+            {formatNum(unreadCount, lang)}
           </span>
         )}
       </button>
@@ -124,8 +125,8 @@ export function AlertBell({
                           )}
                           {isRtl ? alert.tagFa : alert.tagEn}
                         </span>
-                        <span dir="ltr" className="font-mono text-[#98A2B3]">
-                          {alert.date}
+                        <span dir={isRtl ? 'rtl' : 'ltr'} className="font-mono text-[#98A2B3]">
+                          {formatDateForLang(alert.date, lang)}
                         </span>
                       </div>
                       <div className="text-xs sm:text-sm font-semibold text-[#F4F1EA]">

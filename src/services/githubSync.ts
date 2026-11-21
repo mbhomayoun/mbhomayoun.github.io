@@ -1,8 +1,59 @@
 import { CmsPayload, SyncedPublication } from '../types/cms';
 
-const REPO_OWNER = 'homayounmb';
-const REPO_NAME = 'homayounmb.github.io';
+const DEFAULT_REPO_OWNER = 'homayounmb';
+const DEFAULT_REPO_NAME = 'homayounmb.github.io';
 const CMS_FILE_PATH = 'public/data/cms-content.json';
+
+let cachedRepo: { owner: string; repo: string } | null = null;
+
+function getHostRepoFallback(): { owner: string; repo: string } {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host.endsWith('.github.io')) {
+      const owner = host.replace(/\.github\.io$/, '');
+      if (owner) return { owner, repo: `${owner}.github.io` };
+    }
+  }
+  return { owner: DEFAULT_REPO_OWNER, repo: DEFAULT_REPO_NAME };
+}
+
+async function resolveTargetRepo(token?: string): Promise<{ owner: string; repo: string }> {
+  if (cachedRepo) return cachedRepo;
+  const hostRepo = getHostRepoFallback();
+  if (!token) return hostRepo;
+
+  try {
+    const userRes = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${token.trim()}`,
+        Accept: 'application/vnd.github+json',
+      },
+    });
+    if (userRes.ok) {
+      const user = (await userRes.json()) as { login?: string };
+      if (user.login) {
+        const candidateRepo = `${user.login}.github.io`;
+        const repoRes = await fetch(
+          `https://api.github.com/repos/${user.login}/${candidateRepo}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token.trim()}`,
+              Accept: 'application/vnd.github+json',
+            },
+          }
+        );
+        if (repoRes.ok) {
+          cachedRepo = { owner: user.login, repo: candidateRepo };
+          return cachedRepo;
+        }
+      }
+    }
+  } catch {
+    // Fall back to hostname inference
+  }
+
+  return hostRepo;
+}
 
 function toBase64Utf8(str: string): string {
   const bytes = new TextEncoder().encode(str);
@@ -29,7 +80,8 @@ export async function verifyGitHubToken(token: string): Promise<{
   error?: string;
 }> {
   try {
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`, {
+    const target = await resolveTargetRepo(token);
+    const res = await fetch(`https://api.github.com/repos/${target.owner}/${target.repo}`, {
       headers: {
         Authorization: `Bearer ${token.trim()}`,
         Accept: 'application/vnd.github+json',
@@ -53,7 +105,7 @@ export async function verifyGitHubToken(token: string): Promise<{
       },
     });
     const user = userRes.ok ? ((await userRes.json()) as { login?: string }) : {};
-    return { ok: true, login: user.login ?? REPO_OWNER };
+    return { ok: true, login: user.login ?? target.owner };
   } catch (err) {
     return {
       ok: false,
@@ -62,9 +114,13 @@ export async function verifyGitHubToken(token: string): Promise<{
   }
 }
 
-async function getFileSha(token: string, path: string): Promise<string | undefined> {
+async function getFileSha(
+  token: string,
+  target: { owner: string; repo: string },
+  path: string
+): Promise<string | undefined> {
   const res = await fetch(
-    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`,
+    `https://api.github.com/repos/${target.owner}/${target.repo}/contents/${path}`,
     {
       headers: {
         Authorization: `Bearer ${token.trim()}`,
@@ -81,6 +137,7 @@ export async function uploadMaterialFileToGitHub(params: {
   token: string;
   file: File;
 }): Promise<string> {
+  const target = await resolveTargetRepo(params.token);
   const cleanName = params.file.name
     .toLowerCase()
     .replace(/[^a-z0-9._-]+/g, '-');
@@ -89,7 +146,7 @@ export async function uploadMaterialFileToGitHub(params: {
   const base64 = arrayBufferToBase64(buffer);
 
   const res = await fetch(
-    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${repoPath}`,
+    `https://api.github.com/repos/${target.owner}/${target.repo}/contents/${repoPath}`,
     {
       method: 'PUT',
       headers: {
@@ -119,11 +176,12 @@ export async function publishCmsToGitHub(params: {
   payload: CmsPayload;
   commitMessage?: string;
 }): Promise<void> {
-  const sha = await getFileSha(params.token, CMS_FILE_PATH);
+  const target = await resolveTargetRepo(params.token);
+  const sha = await getFileSha(params.token, target, CMS_FILE_PATH);
   const contentStr = JSON.stringify(params.payload, null, 2) + '\n';
 
   const res = await fetch(
-    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CMS_FILE_PATH}`,
+    `https://api.github.com/repos/${target.owner}/${target.repo}/contents/${CMS_FILE_PATH}`,
     {
       method: 'PUT',
       headers: {

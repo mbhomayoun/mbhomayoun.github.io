@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, Code2, Layers, Sparkles, X } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, ProjectItem, UI_COPY } from '../data/profile';
+import { formatNum } from '../utils/format';
 
 function Sparkline({ data, accent }: { data: number[]; accent: string }) {
   const max = Math.max(...data);
@@ -114,15 +115,29 @@ const TiltProjectCard = forwardRef<
         </div>
 
         <div>
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-lg sm:text-2xl font-semibold text-[#F4F1EA] group-hover:text-[#2EE6D6] transition-colors">
-              {project.title}
-            </h3>
-            <ArrowUpRight className="w-4 h-4 text-[#98A2B3] group-hover:text-[#2EE6D6] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-lg sm:text-2xl font-semibold text-[#F4F1EA] group-hover:text-[#2EE6D6] transition-colors">
+                  {project.title}
+                </h3>
+                <ArrowUpRight className="w-4 h-4 text-[#98A2B3] group-hover:text-[#2EE6D6] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
+              </div>
+              <p className="mt-2 text-xs sm:text-sm text-[#98A2B3] leading-relaxed">
+                {project.tagline}
+              </p>
+            </div>
+            {project.coverUrl && (
+              <div className="w-12 sm:w-14 aspect-[3/4.2] shrink-0 rounded-lg overflow-hidden border border-white/15 bg-[#f4f4f4] shadow-md group-hover:border-[#2EE6D6]/50 transition-colors">
+                <img
+                  src={project.coverUrl}
+                  alt={project.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            )}
           </div>
-          <p className="mt-2 text-xs sm:text-sm text-[#98A2B3] leading-relaxed">
-            {project.tagline}
-          </p>
         </div>
       </div>
 
@@ -288,6 +303,24 @@ export function ProjectsSection({ lang }: { lang: Lang }) {
                   <div className="rounded-2xl bg-black/45 border border-white/10 p-4 text-xs text-[#F5B971]">
                     {copy.projects.benchmark} {selected.metrics}
                   </div>
+
+                  {selected.coverUrl && (
+                    <div className="rounded-2xl bg-black/35 border border-white/10 p-3 flex items-center gap-4">
+                      <img
+                        src={selected.coverUrl}
+                        alt={selected.title}
+                        className="w-16 sm:w-20 aspect-[3/4.2] object-cover object-top rounded-lg border border-white/15 shrink-0"
+                      />
+                      <div className="text-xs text-[#98A2B3] leading-relaxed">
+                        <div className="font-semibold text-[#F4F1EA] mb-1">
+                          {isRtl ? 'سند یا جلد مرجع' : 'Primary Source Plate'}
+                        </div>
+                        <span>
+                          {selected.categoryLabel} · {formatNum(selected.year, lang)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <h4 className="text-[11px] uppercase tracking-wider text-[#98A2B3]">

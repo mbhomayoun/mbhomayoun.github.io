@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDownRight, ArrowUpRight, BookOpen, FlaskConical } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
+import { formatNum } from '../utils/format';
 import { Hero3DMode, Hero3DScene } from './Hero3DScene';
 
 interface HeroSectionProps {
@@ -15,10 +16,12 @@ function CountUpNumber({
   target,
   suffix,
   ready,
+  lang,
 }: {
   target: number;
   suffix: string;
   ready: boolean;
+  lang: Lang;
 }) {
   const [val, setVal] = useState(0);
 
@@ -41,10 +44,13 @@ function CountUpNumber({
     return () => cancelAnimationFrame(raf);
   }, [target, ready]);
 
+  const formattedVal = formatNum(val, lang);
+  const formattedSuffix = formatNum(suffix, lang);
+
   return (
-    <span dir="ltr" className="tabular-nums inline-block">
-      {val.toLocaleString()}
-      {suffix}
+    <span dir={lang === 'fa' ? 'rtl' : 'ltr'} className="tabular-nums inline-block">
+      {formattedVal}
+      {formattedSuffix}
     </span>
   );
 }
@@ -249,11 +255,16 @@ export function HeroSection({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 flex-1">
           {profile.stats.map((stat) => (
             <div key={stat.label} className="space-y-1">
-              <div className="font-serif italic text-2xl sm:text-4xl text-[#F4F1EA]">
+              <div
+                className={`text-2xl sm:text-4xl text-[#F4F1EA] ${
+                  isRtl ? 'font-bold font-fa-force' : 'font-serif italic'
+                }`}
+              >
                 <CountUpNumber
                   target={stat.value}
                   suffix={stat.suffix}
                   ready={ready}
+                  lang={lang}
                 />
               </div>
               <div className="text-[10px] sm:text-[11px] tracking-wider text-[#98A2B3]">

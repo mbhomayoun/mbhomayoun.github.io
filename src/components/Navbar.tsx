@@ -133,7 +133,7 @@ export function Navbar({
             className="glass-panel rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 text-[11px] font-medium text-[#F4F1EA] hover:text-[#2EE6D6] hover:border-[#2EE6D6]/45 transition-colors cursor-pointer"
           >
             <Globe className="w-3.5 h-3.5 text-[#2EE6D6] shrink-0" />
-            <span className="tracking-wide">{copy.langSwitchShort}</span>
+            <span className="tracking-wide font-fa-force">{copy.langSwitchShort}</span>
           </button>
 
           <button

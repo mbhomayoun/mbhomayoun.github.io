@@ -14,8 +14,29 @@ export interface UnlockedVaultSession {
 }
 
 const SESSION_KEY = 'observatory-unlocked-vault';
-const RAW_VAULT_URL =
-  'https://raw.githubusercontent.com/homayounmb/homayounmb.github.io/main/public/data/admin-vault.json';
+
+function getRawVaultUrls(): string[] {
+  const urls: string[] = [];
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host.endsWith('.github.io')) {
+      const owner = host.replace(/\.github\.io$/, '');
+      if (owner) {
+        urls.push(
+          `https://raw.githubusercontent.com/${owner}/${owner}.github.io/main/public/data/admin-vault.json`
+        );
+      }
+    }
+  }
+  const defaults = [
+    'https://raw.githubusercontent.com/mbhomayoun/mbhomayoun.github.io/main/public/data/admin-vault.json',
+    'https://raw.githubusercontent.com/homayounmb/homayounmb.github.io/main/public/data/admin-vault.json',
+  ];
+  for (const u of defaults) {
+    if (!urls.includes(u)) urls.push(u);
+  }
+  return urls;
+}
 
 function hexToBytes(hex: string): Uint8Array {
   const bytes = new Uint8Array(hex.length / 2);
@@ -65,18 +86,21 @@ async function fetchAdminVaultFile(): Promise<AdminVaultFile> {
     !window.location.hostname.includes('localhost') &&
     !window.location.hostname.includes('127.0.0.1')
   ) {
-    try {
+    for (const rawUrl of getRawVaultUrls()) {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 3000);
-      const rawRes = await fetch(`${RAW_VAULT_URL}?t=${Date.now()}`, {
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-      if (rawRes.ok) {
-        vault = (await rawRes.json()) as AdminVaultFile;
+      const timer = setTimeout(() => controller.abort(), 2400);
+      try {
+        const rawRes = await fetch(`${rawUrl}?t=${Date.now()}`, {
+          signal: controller.signal,
+        });
+        clearTimeout(timer);
+        if (rawRes.ok) {
+          vault = (await rawRes.json()) as AdminVaultFile;
+          break;
+        }
+      } catch {
+        clearTimeout(timer);
       }
-    } catch {
-      // Keep bundled ./data/admin-vault.json
     }
   }
 

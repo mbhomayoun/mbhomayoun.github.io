@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Check,
   ChevronDown,
   Copy,
   ExternalLink,
+  Maximize2,
   Quote,
   Search,
+  X,
 } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, PublicationItem, UI_COPY } from '../data/profile';
 import { mergePublications } from '../services/cms';
 import { SyncedPublication } from '../types/cms';
+import { formatNum } from '../utils/format';
 
 export function PublicationsSection({
   lang,
@@ -35,10 +39,20 @@ export function PublicationsSection({
     allPublications[0]?.id ?? null
   );
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [lightboxPub, setLightboxPub] = useState<PublicationItem | null>(null);
 
   useEffect(() => {
     setTopicFilter(null);
   }, [lang]);
+
+  useEffect(() => {
+    if (!lightboxPub) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxPub(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxPub]);
 
   const allTopics = useMemo(() => {
     const map = new Map<string, number>();
@@ -100,8 +114,12 @@ export function PublicationsSection({
 
           <div className="glass-panel rounded-2xl px-5 py-3.5 flex items-center gap-6 w-fit">
             <div>
-              <div className="font-serif italic text-2xl text-[#F4F1EA]">
-                {allPublications.length}
+              <div
+                className={`text-2xl text-[#F4F1EA] ${
+                  isRtl ? 'font-bold font-fa-force' : 'font-serif italic'
+                }`}
+              >
+                {formatNum(allPublications.length, lang)}
               </div>
               <div className="text-[10px] tracking-wider text-[#98A2B3]">
                 {copy.publications.featuredWorks}
@@ -109,8 +127,12 @@ export function PublicationsSection({
             </div>
             <div className="h-8 w-px bg-white/10" />
             <div>
-              <div className="font-serif italic text-2xl text-[#2EE6D6]">
-                {uniqueVenues}
+              <div
+                className={`text-2xl text-[#2EE6D6] ${
+                  isRtl ? 'font-bold font-fa-force' : 'font-serif italic'
+                }`}
+              >
+                {formatNum(uniqueVenues, lang)}
               </div>
               <div className="text-[10px] tracking-wider text-[#98A2B3]">
                 {copy.publications.venuesLabel}
@@ -181,7 +203,7 @@ export function PublicationsSection({
                     }`}
                   />
                   {topic.name}
-                  <span className="opacity-60">({topic.count})</span>
+                  <span className="opacity-60">({formatNum(topic.count, lang)})</span>
                 </button>
               );
             })}
@@ -205,31 +227,67 @@ export function PublicationsSection({
                   className="glass-panel rounded-2xl p-4 sm:p-6 border border-white/10 hover:border-white/20 transition-colors"
                 >
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                    <div className="space-y-2 flex-1">
-                      <div className="flex flex-wrap items-center gap-2 text-[11px]">
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#F5B971]/12 text-[#F5B971] border border-[#F5B971]/30">
-                          {pub.year} · {pub.typeLabel}
-                        </span>
-                        <span className="text-[#2EE6D6]">{pub.venue}</span>
-                        {pub.citations > 0 ? (
-                          <span className="text-[#98A2B3]">
-                            · {pub.citations} {copy.publications.citationsSuffix}
+                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                      {pub.coverUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setLightboxPub(pub)}
+                          data-cursor="PREVIEW"
+                          aria-label={
+                            isRtl
+                              ? `پیش‌نمایش صفحه نخست یا جلد: ${pub.title}`
+                              : `Preview cover or first page: ${pub.title}`
+                          }
+                          className="group/thumb relative w-20 sm:w-24 aspect-[3/4.2] shrink-0 rounded-xl overflow-hidden border border-white/15 bg-[#f7f7f7] shadow-[0_14px_32px_-12px_rgba(0,0,0,0.85)] hover:border-[#2EE6D6]/60 transition-all cursor-pointer"
+                        >
+                          <img
+                            src={pub.coverUrl}
+                            alt={pub.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover object-top group-hover/thumb:scale-[1.04] transition-transform duration-300"
+                          />
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-end justify-between p-1.5">
+                            <span className="text-[9px] font-medium text-[#F4F1EA]">
+                              {pub.type === 'Book'
+                                ? isRtl
+                                  ? 'جلد'
+                                  : 'Cover'
+                                : isRtl
+                                  ? 'صفحه اول'
+                                  : 'Page 1'}
+                            </span>
+                            <Maximize2 className="w-3 h-3 text-[#2EE6D6]" />
+                          </div>
+                        </button>
+                      )}
+
+                      <div className="space-y-2 flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#F5B971]/12 text-[#F5B971] border border-[#F5B971]/30">
+                            {formatNum(pub.year, lang)} · {pub.typeLabel}
                           </span>
-                        ) : (
-                          <span dir="ltr" className="font-mono text-[#98A2B3]">
-                            · {pub.doi}
-                          </span>
-                        )}
+                          <span className="text-[#2EE6D6]">{pub.venue}</span>
+                          {pub.citations > 0 ? (
+                            <span className="text-[#98A2B3]">
+                              · {formatNum(pub.citations, lang)}{' '}
+                              {copy.publications.citationsSuffix}
+                            </span>
+                          ) : (
+                            <span dir="ltr" className="font-mono text-[#98A2B3]">
+                              · {pub.doi}
+                            </span>
+                          )}
+                        </div>
+
+                        <h3
+                          onClick={() => setExpandedId(isOpen ? null : pub.id)}
+                          className="text-base sm:text-xl font-semibold text-[#F4F1EA] hover:text-[#2EE6D6] transition-colors cursor-pointer leading-snug"
+                        >
+                          {pub.title}
+                        </h3>
+
+                        <p className="text-xs sm:text-sm text-[#98A2B3]">{pub.authors}</p>
                       </div>
-
-                      <h3
-                        onClick={() => setExpandedId(isOpen ? null : pub.id)}
-                        className="text-base sm:text-xl font-semibold text-[#F4F1EA] hover:text-[#2EE6D6] transition-colors cursor-pointer leading-snug"
-                      >
-                        {pub.title}
-                      </h3>
-
-                      <p className="text-xs sm:text-sm text-[#98A2B3]">{pub.authors}</p>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
@@ -332,6 +390,74 @@ export function PublicationsSection({
           )}
         </div>
       </div>
+
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {lightboxPub && lightboxPub.coverUrl && (
+              <motion.div
+                role="dialog"
+                aria-modal="true"
+                aria-label={lightboxPub.title}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setLightboxPub(null)}
+                className="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 18, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 12, scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="glass-panel w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden border border-white/15"
+                >
+                  <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-white/10 shrink-0">
+                    <div className="min-w-0">
+                      <div className="text-[11px] text-[#2EE6D6] font-medium truncate">
+                        {lightboxPub.venue} · {formatNum(lightboxPub.year, lang)}
+                      </div>
+                      <div className="text-xs sm:text-sm font-semibold text-[#F4F1EA] truncate">
+                        {lightboxPub.title}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a
+                        href={lightboxPub.pdfUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 rounded-full bg-white/8 hover:bg-[#2EE6D6]/20 border border-white/10 px-3 py-1.5 text-[11px] text-[#F4F1EA]"
+                      >
+                        <span>{copy.publications.pdfLink}</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setLightboxPub(null)}
+                        aria-label="Close cover preview"
+                        className="rounded-full p-1.5 bg-white/5 hover:bg-white/15 text-[#98A2B3] hover:text-[#F4F1EA] cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    data-lenis-prevent
+                    className="overflow-y-auto overscroll-contain p-4 sm:p-6 bg-[#07090e] flex justify-center"
+                  >
+                    <img
+                      src={lightboxPub.coverUrl}
+                      alt={lightboxPub.title}
+                      className="w-full max-w-lg h-auto rounded-xl shadow-2xl border border-white/10"
+                    />
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </section>
   );
 }

@@ -26,17 +26,40 @@ html {
   scroll-behavior: auto;
 }
 
-html[lang="fa"] {
-  font-family: var(--font-fa);
-}
-
-html[lang="fa"] .font-serif {
-  font-family: var(--font-fa);
+html[lang="fa"],
+html[lang="fa"] body,
+html[lang="fa"] button,
+html[lang="fa"] input,
+html[lang="fa"] textarea,
+html[lang="fa"] select,
+html[lang="fa"] kbd,
+html[lang="fa"] .font-sans,
+html[lang="fa"] .font-serif,
+html[lang="fa"] .font-mono {
+  font-family: var(--font-fa), sans-serif;
   font-style: normal;
 }
 
 html[lang="fa"] .italic {
   font-style: normal;
+}
+
+.font-fa-force {
+  font-family: var(--font-fa), sans-serif !important;
+}
+
+/* Ensure KaTeX math isolates LTR layout cleanly regardless of RTL page direction */
+.katex {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.katex .katex-html {
+  font-size: 0.96em;
+}
+
+.katex-display {
+  margin: 0.25rem 0 !important;
 }
 
 body {

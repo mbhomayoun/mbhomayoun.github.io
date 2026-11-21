@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
+import { formatNum } from '../utils/format';
 
 interface PreloaderProps {
   onComplete: () => void;
@@ -70,8 +71,9 @@ export function Preloader({ onComplete, lang }: PreloaderProps) {
           <div className="w-full max-w-md mx-auto">
             <div className="flex items-center justify-between font-mono text-xs text-[#98A2B3] mb-2">
               <span>{copy.preloaderConvergence}</span>
-              <span dir="ltr" className="text-[#F4F1EA] tabular-nums">
-                {String(progress).padStart(3, '0')}%
+              <span dir={lang === 'fa' ? 'rtl' : 'ltr'} className="text-[#F4F1EA] tabular-nums">
+                {formatNum(String(progress).padStart(3, '0'), lang)}
+                {lang === 'fa' ? '٪' : '%'}
               </span>
             </div>
             <div className="h-[2px] w-full bg-white/10 overflow-hidden rounded-full">

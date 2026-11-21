@@ -35,6 +35,7 @@ export interface ProjectItem {
   sparkline: number[];
   githubUrl: string;
   liveUrl?: string;
+  coverUrl?: string;
 }
 
 export interface PublicationItem {
@@ -52,6 +53,7 @@ export interface PublicationItem {
   keyFinding: string;
   bibtex: string;
   pdfUrl: string;
+  coverUrl?: string;
 }
 
 export interface TimelineItem {
@@ -581,7 +583,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'Long-term formation creep & rock–cement–casing interaction',
         description:
           'Deep hydrocarbon formations exhibit time-dependent creep that reshapes radial stresses around wellbores over years of production. We formulate 3D sequential finite-element models capturing viscoelastic-plastic rock–cement–casing coupling and integrity derating under anisotropic tectonic stresses.',
-        equation: 'ε(t) = ε_el + ε_ve(t) + ε_vp(σ, τ)   |   σ_eq ≤ σ_yield / SF(t)',
+        equation:
+          String.raw`\boldsymbol{\varepsilon}(t) = \boldsymbol{\varepsilon}_{\mathrm{el}} + \int_{0}^{t}\!\mathbf{J}(t-\tau)\,\frac{\partial \boldsymbol{\sigma}}{\partial \tau}\,d\tau + \dot{\boldsymbol{\varepsilon}}_{\mathrm{vp}}(\boldsymbol{\sigma}_{\mathrm{eff}},T), \qquad \sigma_{\mathrm{eq}} \le \frac{\sigma_{y}}{\mathrm{SF}(t)}`,
         metrics: [
           { label: 'Coupled Domains', value: 'Rock–Cement–Steel' },
           { label: 'Stress Regime', value: '3D Anisotropic' },
@@ -597,7 +600,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'Decoupling rock mechanics & deterministic etching in Ilam limestone',
         description:
           'Predicting post-acidizing fracture conductivity requires separating rock mechanical closure from stochastic dissolution patterns. Using API RP-61 high-pressure conductivity testing on Ilam carbonate split core plugs, we quantify how machined channel depth and width govern closure resistance.',
-        equation: 'k_f w_f (σ_c) = f(E, ν, d_etch, w_etch)   |   API RP-61 Cell',
+        equation:
+          String.raw`(k_f w_f)(\sigma_c) = C_1 \left( d_{\mathrm{etch}}^{\,\alpha}\, w_{\mathrm{etch}}^{\,\beta} \right) \exp\!\left( -\gamma\,\frac{\sigma_c}{E_{\mathrm{rock}}} \right), \qquad \sigma_c = \sigma_n - \alpha_B p_f`,
         metrics: [
           { label: 'Core Plugs', value: '18.4 × 4.75 cm' },
           { label: 'Etch Depth', value: '0.6 – 1.6 mm' },
@@ -613,7 +617,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'Multiphase cuttings transport & tetrahedral mesh optimization',
         description:
           'Preventing stuck pipe and cutting beds demands accurate solid–liquid multiphase fluid dynamics without prohibitive compute overhead. Validated against Amirkabir flow-loop experiments with four-nozzle bit geometry, our Model E2-475 achieves experimental fidelity at optimal mesh density.',
-        equation: '∂ₜ(α_s ρ_s u_s) + ∇·(α_s ρ_s u_s ⊗ u_s) = −α_s∇p + M_drag + α_s ρ_s g',
+        equation:
+          String.raw`\frac{\partial}{\partial t}(\alpha_s \rho_s \mathbf{u}_s) + \nabla \cdot (\alpha_s \rho_s \mathbf{u}_s \otimes \mathbf{u}_s) = -\alpha_s \nabla p + \nabla \cdot \boldsymbol{\tau}_s + \mathbf{M}_{\mathrm{drag}} + \alpha_s \rho_s \mathbf{g}`,
         metrics: [
           { label: 'Optimal Mesh', value: '475k Elements' },
           { label: 'Flow Regime', value: 'Solid–Liquid 2φ' },
@@ -629,7 +634,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'TIS frameworks, optimization funds & hydrocarbon macro-policy',
         description:
           'Technical engineering gains stall without sound institutional incentives. Our multidisciplinary research designs national energy consumption optimization funds, electricity and natural gas subsidy redistribution mechanisms, and Technological Innovation System (TIS) industrial energy frameworks.',
-        equation: 'Welfare_net = ∑ ΔE_saved · P_shadow − Cost_transition   |   TIS Matrix',
+        equation:
+          String.raw`\mathcal{W}_{\mathrm{net}} = \sum_{i \in \{\mathrm{gas,\,elec}\}} \Big( \Delta E_{\mathrm{saved},i}\cdot P_{\mathrm{shadow},i} - \mathcal{C}_{\mathrm{retrofit},i} \Big) + \lambda_{\mathrm{TIS}}\,\Phi_{\mathrm{diffusion}}`,
         metrics: [
           { label: 'Energy Waste Focus', value: '~30% Target Gap' },
           { label: 'Carriers Studied', value: 'Gas & Electricity' },
@@ -665,6 +671,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         sparkline: [20, 28, 36, 48, 57, 68, 79, 89, 96],
         githubUrl: 'https://doi.org/10.2139/ssrn.7545360',
         liveUrl: 'https://doi.org/10.2139/ssrn.7545360',
+        coverUrl: './covers/pub-2026-ssrn-creep.png',
       },
       {
         id: 'ilam-acid-fracturing',
@@ -691,6 +698,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         sparkline: [25, 34, 42, 55, 63, 74, 83, 91, 98],
         githubUrl: 'https://doi.org/10.1038/s41598-026-76933-8',
         liveUrl: 'https://doi.org/10.1038/s41598-026-76933-8',
+        coverUrl: './covers/pub-2026-scirep-ilam.png',
       },
       {
         id: 'wellbore-cfd-e2475',
@@ -714,7 +722,9 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'Benchmark reference for graduate drilling-hydraulics CFD validation studies',
         ],
         sparkline: [32, 41, 49, 60, 69, 77, 84, 90, 94],
-        githubUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        githubUrl: 'https://pr.ripi.ir/article_1308.html',
+        liveUrl: 'https://pr.ripi.ir/article_1308.html',
+        coverUrl: './covers/pub-2023-ripi-cfd.png',
       },
       {
         id: 'drilling-fluid-textbook',
@@ -738,7 +748,9 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'Adopted by Petroleum Engineering students and field drilling engineers across Iran',
         ],
         sparkline: [28, 35, 46, 54, 62, 70, 79, 86, 92],
-        githubUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        githubUrl: 'https://taaghche.com/book/97711',
+        liveUrl: 'https://taaghche.com/book/97711',
+        coverUrl: './covers/pub-book-drilling.png',
       },
       {
         id: 'energy-optimization-fund',
@@ -761,8 +773,9 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'Published across Journal of Improvement Management (DOAJ) & Strategic Studies of Public Policy',
         ],
         sparkline: [19, 30, 41, 52, 64, 71, 80, 87, 93],
-        githubUrl: 'https://doaj.org/article/df9976e1dd4a403d87eb8cc15acdd513',
-        liveUrl: 'https://doaj.org/article/df9976e1dd4a403d87eb8cc15acdd513',
+        githubUrl: 'https://doi.org/10.22034/jmi.2024.451038.3080',
+        liveUrl: 'https://doi.org/10.22034/jmi.2024.451038.3080',
+        coverUrl: './covers/pub-2024-jmi-fund.png',
       },
       {
         id: 'tis-oil-governance',
@@ -784,8 +797,9 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'Published in Journal of Improvement Management (2025) & Quarterly Journal of Governance Knowledge (2024)',
         ],
         sparkline: [22, 29, 39, 50, 60, 68, 76, 85, 91],
-        githubUrl: 'https://doaj.org/article/fea4975615494821ae6f863020c30ff0',
-        liveUrl: 'https://doaj.org/article/fea4975615494821ae6f863020c30ff0',
+        githubUrl: 'https://doi.org/10.22034/jmi.2025.537444.3223',
+        liveUrl: 'https://doi.org/10.22034/jmi.2025.537444.3223',
+        coverUrl: './covers/pub-2025-jmi-policy.png',
       },
     ],
     publications: [
@@ -812,6 +826,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   doi={10.1038/s41598-026-76933-8}
 }`,
         pdfUrl: 'https://doi.org/10.1038/s41598-026-76933-8',
+        coverUrl: './covers/pub-2026-scirep-ilam.png',
       },
       {
         id: 'pub-2026-ssrn-creep',
@@ -836,6 +851,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   doi={10.2139/ssrn.7545360}
 }`,
         pdfUrl: 'https://doi.org/10.2139/ssrn.7545360',
+        coverUrl: './covers/pub-2026-ssrn-creep.png',
       },
       {
         id: 'pub-2025-jmi-policy',
@@ -859,7 +875,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   year={2025},
   doi={10.22034/jmi.2025.537444.3223}
 }`,
-        pdfUrl: 'https://doaj.org/article/fea4975615494821ae6f863020c30ff0',
+        pdfUrl: 'https://doi.org/10.22034/jmi.2025.537444.3223',
+        coverUrl: './covers/pub-2025-jmi-policy.png',
       },
       {
         id: 'pub-2024-jmi-fund',
@@ -883,7 +900,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   year={2024},
   doi={10.22034/jmi.2024.451038.3080}
 }`,
-        pdfUrl: 'https://doaj.org/article/df9976e1dd4a403d87eb8cc15acdd513',
+        pdfUrl: 'https://doi.org/10.22034/jmi.2024.451038.3080',
+        coverUrl: './covers/pub-2024-jmi-fund.png',
       },
       {
         id: 'pub-2024-jokog-saudi',
@@ -894,7 +912,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         type: 'Journal',
         typeLabel: 'Journal',
         citations: 0,
-        doi: 'Indexed in Magiran / Jokog',
+        doi: '10.22034/jokog.2024.201790',
         topics: ['Energy Governance', 'Oil & Gas Industry', 'Corporate Governance'],
         abstract:
           'Analyzes the institutional, regulatory, and corporate-governance dimensions of oil and gas sector management, examining Saudi Arabia’s hydrocarbon governance model and Saudi Aramco’s corporate structure to draw transferable lessons for resource-rich economies.',
@@ -904,20 +922,22 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   title={Examining the dimensions of energy governance, focusing on the oil and gas industry; A case study of Saudi Arabia},
   author={Homayoun, Mohammad Bagher and Akbari, Mohammadreza and Heydari, Hamid and Sohankar, Amirhossein},
   journal={Quarterly Journal of Governance Knowledge},
-  year={2024}
+  year={2024},
+  doi={10.22034/jokog.2024.201790}
 }`,
-        pdfUrl: 'https://scholar.google.com/scholar?q=%22Examining+the+dimensions+of+energy+governance%22+Homayoun',
+        pdfUrl: 'https://www.jokog.ir/article_201790.html',
+        coverUrl: './covers/pub-2024-jokog-saudi.png',
       },
       {
         id: 'pub-2024-sspp-subsidies',
         title: "Iran's energy subsidies reform by introducing the new approach of redistributing energy subsidies; A case study of electricity and natural gas",
-        authors: 'Mohammad Bagher Homayoun, Mohammadreza Akbari, Esmail Saghab Esfahani, et al.',
+        authors: 'Mohammad Bagher Homayoun, Mohammadreza Akbari, Esmail Saghab Esfahani, Hamid Heidari, Amirhossein Sohankar, Seyed Majid Miri Larimi',
         venue: 'Strategic Studies of Public Policy',
         year: 2024,
         type: 'Journal',
         typeLabel: 'Journal',
         citations: 0,
-        doi: 'Indexed in IranJournals / Ensani',
+        doi: '10.22034/sspp.2024.2025011.3584',
         topics: ['Energy Policy', 'Subsidy Reform', 'Gas & Electricity'],
         abstract:
           'Introduces a structured subsidy-redistribution framework targeting electricity and natural gas consumption inefficiencies, balancing state fiscal sustainability, equitable household protection, and incentives for rational energy use.',
@@ -927,9 +947,11 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   title={Iran's energy subsidies reform by introducing the new approach of redistributing energy subsidies; A case study of electricity and natural gas},
   author={Homayoun, Mohammad Bagher and Akbari, Mohammadreza and Saghab Esfahani, Esmail},
   journal={Strategic Studies of Public Policy},
-  year={2024}
+  year={2024},
+  doi={10.22034/sspp.2024.2025011.3584}
 }`,
-        pdfUrl: 'https://scholar.google.com/scholar?q=%22redistributing+energy+subsidies%22+Homayoun',
+        pdfUrl: 'https://sspp.iranjournals.ir/article_715727.html',
+        coverUrl: './covers/pub-2024-sspp-subsidies.png',
       },
       {
         id: 'pub-2023-ripi-cfd',
@@ -940,19 +962,21 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         type: 'Journal',
         typeLabel: 'Journal',
         citations: 0,
-        doi: 'Indexed in RIPI / SID',
+        doi: '10.22078/pr.2022.4788.3148',
         topics: ['Drilling Hydraulics', 'Wellbore CFD', 'Mesh Optimization'],
         abstract:
-          'Evaluates tetrahedral mesh resolutions (100k, 200k, 475k, and 500k elements) in ANSYS CFD simulations of solid–liquid two-phase wellbore cleaning, benchmarked against Amirkabir University of Technology flow-loop experiments featuring a four-nozzle bit simulator and CaCO3 cuttings transport.',
+          'Evaluates tetrahedral mesh resolutions (~100k, ~200k, ~500k elements and Model E2-475) in ANSYS CFD simulations of solid–liquid two-phase wellbore cleaning, benchmarked against Amirkabir University of Technology flow-loop experiments featuring a four-nozzle bit simulator and CaCO3 cuttings transport.',
         keyFinding:
-          'The optimized Model E2-475 (~475,000 elements) reproduces experimental cuttings-transport behavior while lowering computational cost relative to over-refined grids.',
+          'Compares tetrahedral mesh grids against Amirkabir flow-loop CaCO3 cuttings transport measurements, identifying optimal accuracy-to-runtime mesh configurations relative to Model E2-475.',
         bibtex: `@article{homayoun2023optimal,
   title={Comparison and Design of Optimal Mesh Size in Computational Fluid Dynamics Model of Well Cleaning},
   author={Homayoun, Mohammad Bagher and Dehvedar, Mohsen and Ashhar, Amir Hossein},
   journal={Journal of Petroleum Research},
-  year={2023}
+  year={2023},
+  doi={10.22078/pr.2022.4788.3148}
 }`,
-        pdfUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        pdfUrl: 'https://pr.ripi.ir/article_1308.html',
+        coverUrl: './covers/pub-2023-ripi-cfd.png',
       },
       {
         id: 'pub-book-drilling',
@@ -963,19 +987,21 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         type: 'Book',
         typeLabel: 'Book',
         citations: 0,
-        doi: 'University Textbook · AUT Press',
+        doi: 'ISBN 978-964-463-829-9 · AUT Press',
         topics: ['Drilling Hydraulics', 'Drilling Fluids', 'Academic Textbook'],
         abstract:
           'University textbook detailing drilling fluid history, continuous-phase and additive chemistry, physical-chemical laboratory measurements, fluid classification, surface circulation equipment, and preventive solutions for drilling operational problems.',
         keyFinding:
-          'Synthesizes Amirkabir University of Technology drilling-fluid curriculum and field practice into a structured reference for petroleum engineering students and practitioners.',
+          'Synthesizes Amirkabir University of Technology drilling-fluid curriculum and field practice into a structured 383-page reference for petroleum engineering students and practitioners.',
         bibtex: `@book{dehvedar2023drilling,
   title={Drilling Engineering -- Volume 1: Drilling Fluid},
   author={Dehvedar, Mohsen and Homayoun, Mohammad Bagher},
   publisher={Amirkabir University of Technology Publications},
+  isbn={978-964-463-829-9},
   year={2023}
 }`,
-        pdfUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        pdfUrl: 'https://taaghche.com/book/97711',
+        coverUrl: './covers/pub-book-drilling.png',
       },
     ],
     timeline: [
@@ -1046,7 +1072,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         category: 'GEOMECHANICS',
         excerpt:
           'Elastic casing design checks only initial completion loads. In creeping evaporites and ductile shales, time-dependent radial closure gradually concentrates shear and collapse loads onto the cement–casing interface.',
-        equationCallout: 'ε_total(t) = ε_elastic + ε_viscoelastic(t) + ε_viscoplastic(σ_eff, t)',
+        equationCallout:
+          String.raw`\boldsymbol{\varepsilon}_{\mathrm{total}}(t) = \boldsymbol{\varepsilon}_{\mathrm{el}} + \boldsymbol{\varepsilon}_{\mathrm{ve}}(t) + \boldsymbol{\varepsilon}_{\mathrm{vp}}(\boldsymbol{\sigma}_{\mathrm{eff}}, t), \qquad \sigma_{\theta\theta}\big|_{r=r_c} = f(\sigma_H, \sigma_h, t)`,
         sections: [
           {
             heading: '1. Beyond Static Elastic Casing Design',
@@ -1071,7 +1098,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         category: 'STIMULATION',
         excerpt:
           'Field acid treatments produce complex stochastic etched surfaces. Machining idealized channels onto split Ilam core plugs isolates how channel depth, width, and mechanical stiffness jointly control conductivity.',
-        equationCallout: 'k_f w_f (σ_c)  ∝  f(d_channel, w_channel, E_rock, σ_closure)',
+        equationCallout:
+          String.raw`(k_f w_f)(\sigma_c) = \frac{w_{\mathrm{bar}}^3}{12}\,\Phi\!\left(\frac{d_{\mathrm{ch}}}{w_{\mathrm{ch}}},\,\frac{\sigma_c}{E_{\mathrm{Ilam}}},\,\nu\right)`,
         sections: [
           {
             heading: '1. The Stochastic Ambiguity of Acid Etching',
@@ -1092,6 +1120,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         category: 'ENERGY POLICY',
         excerpt:
           'Extracting energy efficiently underground solves only half the equation if downstream consumption wastes 30% of output. Linking technical innovation systems with targeted optimization funds aligns incentives across the value chain.',
+        equationCallout:
+          String.raw`\Delta \mathrm{EI}_{\mathrm{ind}} = -\eta_{\mathrm{fund}}\,\frac{I_{\mathrm{opt}}}{E_{\mathrm{baseline}}} - \beta_{\mathrm{quota}}\,\Delta P_{\mathrm{effective}}`,
         sections: [
           {
             heading: '1. Price vs. Non-Price Policy Instruments',
@@ -1126,7 +1156,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
     location: 'تهران، ایران',
     availability: 'آماده همکاری در پروژه‌های پژوهشی ژئومکانیک زیرسطحی، شبیه‌سازی عددی و سیاست‌گذاری انرژی',
     email: 'mb.homayoun@aut.ac.ir',
-    coordinates: '35.7022° N, 51.4090° E',
+    coordinates: '۳۵.۷۰۲۲° شمالی، ۵۱.۴۰۹۰° شرقی',
     heroEyebrow: 'ژئومکانیک نفت · دینامیک سیالات محاسباتی چاه · حکمرانی انرژی',
     heroHeadlineTop: 'مهندسی مکانیک',
     heroHeadlineItalic: 'سنگ و سامانه‌های',
@@ -1174,7 +1204,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'خزش بلندمدت سازند و برهم‌کنش سنگ–سیمان–لوله جداری',
         description:
           'سازندهای عمیق هیدروکربنی دارای رفتار خزشی وابسته به زمان هستند که توزیع تنش شعاعی اطراف چاه را طی سال‌های بهره‌برداری دگرگون می‌کند. ما مدل‌های اجزای محدود متوالی سه‌بعدی را برای تحلیل کوپلینگ سنگ–سیمان–جداری و کاهش ضریب ایمنی تحت تنش‌های ناهمسانگرد تدوین می‌کنیم.',
-        equation: 'ε(t) = ε_el + ε_ve(t) + ε_vp(σ, τ)   |   σ_eq ≤ σ_yield / SF(t)',
+        equation:
+          String.raw`\boldsymbol{\varepsilon}(t) = \boldsymbol{\varepsilon}_{\mathrm{el}} + \int_{0}^{t}\!\mathbf{J}(t-\tau)\,\frac{\partial \boldsymbol{\sigma}}{\partial \tau}\,d\tau + \dot{\boldsymbol{\varepsilon}}_{\mathrm{vp}}(\boldsymbol{\sigma}_{\mathrm{eff}},T), \qquad \sigma_{\mathrm{eq}} \le \frac{\sigma_{y}}{\mathrm{SF}(t)}`,
         metrics: [
           { label: 'محیط کوپل‌شده', value: 'سنگ–سیمان–فولاد' },
           { label: 'رژیم تنش', value: 'سه‌بعدی ناهمسانگرد' },
@@ -1190,7 +1221,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'تفکیک مکانیک سنگ و هندسه حفر اسید در سازند آهکی ایلام',
         description:
           'پیش‌بینی رسانایی شکستگی پس از اسیدکاری مستلزم جداسازی بسته‌شدن مکانیکی از الگوی انحلال تصادفی اسید است. با آزمایش رسانایی فشاربالای API RP-61 روی مغزه‌های شکاف‌دار سنگ آهک سازند ایلام، نقش عمق و پهنای کانال‌های ماشین‌کاری‌شده در پایداری رسانایی سنجیده می‌شود.',
-        equation: 'k_f w_f (σ_c) = f(E, ν, d_etch, w_etch)   |   API RP-61 Cell',
+        equation:
+          String.raw`(k_f w_f)(\sigma_c) = C_1 \left( d_{\mathrm{etch}}^{\,\alpha}\, w_{\mathrm{etch}}^{\,\beta} \right) \exp\!\left( -\gamma\,\frac{\sigma_c}{E_{\mathrm{rock}}} \right), \qquad \sigma_c = \sigma_n - \alpha_B p_f`,
         metrics: [
           { label: 'ابعاد مغزه', value: '۱۸.۴ × ۴.۷۵ سانتی‌متر' },
           { label: 'عمق کانال', value: '۰.۶ تا ۱.۶ میلی‌متر' },
@@ -1206,7 +1238,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'انتقال دوفازی کنده‌های حفاری و بهینه‌سازی شبکه مش چهاروجهی',
         description:
           'پیشگیری از گیر افتادن لوله و تشکیل بستر کنده نیازمند شبیه‌سازی دقیق جریان جامد–مایع بدون هزینه محاسباتی گزاف است. مدل بهینه‌شده E2-475 با اعتبارسنجی در مدار جریان آزمایشگاهی دانشگاه امیرکبیر، دقت تجربی را با چگالی شبکه بهینه برقرار می‌سازد.',
-        equation: '∂ₜ(α_s ρ_s u_s) + ∇·(α_s ρ_s u_s ⊗ u_s) = −α_s∇p + M_drag + α_s ρ_s g',
+        equation:
+          String.raw`\frac{\partial}{\partial t}(\alpha_s \rho_s \mathbf{u}_s) + \nabla \cdot (\alpha_s \rho_s \mathbf{u}_s \otimes \mathbf{u}_s) = -\alpha_s \nabla p + \nabla \cdot \boldsymbol{\tau}_s + \mathbf{M}_{\mathrm{drag}} + \alpha_s \rho_s \mathbf{g}`,
         metrics: [
           { label: 'شبکه بهینه', value: '۴۷۵ هزار المان' },
           { label: 'رژیم جریان', value: 'دوفازی جامد–مایع' },
@@ -1222,7 +1255,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         subtitle: 'چارچوب TIS، صندوق بهینه‌سازی مصرف و سیاست کلان نفت و گاز',
         description:
           'دستاوردهای مهندسی بدون اصلاح نهادهای مشوق اقتصادی به بهره‌وری ملی منتهی نمی‌شوند. پژوهش‌های بین‌رشته‌ای ما چارچوب صندوق بهینه‌سازی مصرف انرژی، بازتوزیع هدفمند یارانه‌های برق و گاز و نظام‌های نوآوری فناورانه (TIS) بخش صنعت را طراحی می‌کند.',
-        equation: 'Welfare_net = ∑ ΔE_saved · P_shadow − Cost_transition   |   TIS Matrix',
+        equation:
+          String.raw`\mathcal{W}_{\mathrm{net}} = \sum_{i \in \{\mathrm{gas,\,elec}\}} \Big( \Delta E_{\mathrm{saved},i}\cdot P_{\mathrm{shadow},i} - \mathcal{C}_{\mathrm{retrofit},i} \Big) + \lambda_{\mathrm{TIS}}\,\Phi_{\mathrm{diffusion}}`,
         metrics: [
           { label: 'شکاف بهره‌وری', value: 'حدود ۳۰٪ اتلاف' },
           { label: 'حامل‌های هدف', value: 'گاز طبیعی و برق' },
@@ -1258,6 +1292,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         sparkline: [20, 28, 36, 48, 57, 68, 79, 89, 96],
         githubUrl: 'https://doi.org/10.2139/ssrn.7545360',
         liveUrl: 'https://doi.org/10.2139/ssrn.7545360',
+        coverUrl: './covers/pub-2026-ssrn-creep.png',
       },
       {
         id: 'ilam-acid-fracturing',
@@ -1284,6 +1319,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         sparkline: [25, 34, 42, 55, 63, 74, 83, 91, 98],
         githubUrl: 'https://doi.org/10.1038/s41598-026-76933-8',
         liveUrl: 'https://doi.org/10.1038/s41598-026-76933-8',
+        coverUrl: './covers/pub-2026-scirep-ilam.png',
       },
       {
         id: 'wellbore-cfd-e2475',
@@ -1303,11 +1339,13 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'پیکربندی بهینه Model E2-475 با کاهش چشمگیر زمان حل نسبت به شبکه‌های فوق‌ریز',
         ],
         outcomes: [
-          'منتشرشده در فصلنامه علمی پژوهش‌های نفت پژوهشگاه صنعت نفت (۱۴۰۱/۲۰۲۳)',
+          'منتشرشده در فصلنامه علمی پژوهش‌های نفت پژوهشگاه صنعت نفت (۱۴۰۲/۲۰۲۳)',
           'مرجع پایه برای اعتبارسنجی شبیه‌سازی‌های تحصیلات تکمیلی هیدرولیک حفاری',
         ],
         sparkline: [32, 41, 49, 60, 69, 77, 84, 90, 94],
-        githubUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        githubUrl: 'https://pr.ripi.ir/article_1308.html',
+        liveUrl: 'https://pr.ripi.ir/article_1308.html',
+        coverUrl: './covers/pub-2023-ripi-cfd-fa.png',
       },
       {
         id: 'drilling-fluid-textbook',
@@ -1331,7 +1369,9 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'مورد استفاده دانشجویان مهندسی نفت و مهندسان عملیات حفاری در صنعت کشور',
         ],
         sparkline: [28, 35, 46, 54, 62, 70, 79, 86, 92],
-        githubUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        githubUrl: 'https://taaghche.com/book/97711',
+        liveUrl: 'https://taaghche.com/book/97711',
+        coverUrl: './covers/pub-book-drilling.png',
       },
       {
         id: 'energy-optimization-fund',
@@ -1354,8 +1394,9 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'منتشرشده در فصلنامه‌های مدیریت بهبود و تحول (DOAJ) و مطالعات راهبردی سیاست‌گذاری عمومی',
         ],
         sparkline: [19, 30, 41, 52, 64, 71, 80, 87, 93],
-        githubUrl: 'https://doaj.org/article/df9976e1dd4a403d87eb8cc15acdd513',
-        liveUrl: 'https://doaj.org/article/df9976e1dd4a403d87eb8cc15acdd513',
+        githubUrl: 'https://doi.org/10.22034/jmi.2024.451038.3080',
+        liveUrl: 'https://doi.org/10.22034/jmi.2024.451038.3080',
+        coverUrl: './covers/pub-2024-jmi-fund-fa.png',
       },
       {
         id: 'tis-oil-governance',
@@ -1377,8 +1418,9 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
           'منتشرشده در فصلنامه مدیریت بهبود و تحول (۲۰۲۵) و دوفصلنامه دانش حکمرانی (۲۰۲۴)',
         ],
         sparkline: [22, 29, 39, 50, 60, 68, 76, 85, 91],
-        githubUrl: 'https://doaj.org/article/fea4975615494821ae6f863020c30ff0',
-        liveUrl: 'https://doaj.org/article/fea4975615494821ae6f863020c30ff0',
+        githubUrl: 'https://doi.org/10.22034/jmi.2025.537444.3223',
+        liveUrl: 'https://doi.org/10.22034/jmi.2025.537444.3223',
+        coverUrl: './covers/pub-2025-jmi-policy-fa.png',
       },
     ],
     publications: [
@@ -1405,11 +1447,12 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   doi={10.1038/s41598-026-76933-8}
 }`,
         pdfUrl: 'https://doi.org/10.1038/s41598-026-76933-8',
+        coverUrl: './covers/pub-2026-scirep-ilam.png',
       },
       {
         id: 'pub-2026-ssrn-creep',
         title: 'Long-Term Viscoelastic-Plastic Rock-Cement-Casing Interaction: Mathematical Formulation, 3D Sequential Simulation, and Integrity Derating under Anisotropic Stresses',
-        authors: 'Mohammad Bagher Homayoun, Mohammad Javad Ameri, Mohammadreza Akbari',
+        authors: 'محمدباقر همایون، محمدجواد عامری، محمدرضا اکبری',
         venue: 'SSRN Electronic Journal',
         year: 2026,
         type: 'Preprint',
@@ -1429,6 +1472,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   doi={10.2139/ssrn.7545360}
 }`,
         pdfUrl: 'https://doi.org/10.2139/ssrn.7545360',
+        coverUrl: './covers/pub-2026-ssrn-creep.png',
       },
       {
         id: 'pub-2025-jmi-policy',
@@ -1452,7 +1496,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   year={2025},
   doi={10.22034/jmi.2025.537444.3223}
 }`,
-        pdfUrl: 'https://doaj.org/article/fea4975615494821ae6f863020c30ff0',
+        pdfUrl: 'https://doi.org/10.22034/jmi.2025.537444.3223',
+        coverUrl: './covers/pub-2025-jmi-policy-fa.png',
       },
       {
         id: 'pub-2024-jmi-fund',
@@ -1476,7 +1521,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   year={2024},
   doi={10.22034/jmi.2024.451038.3080}
 }`,
-        pdfUrl: 'https://doaj.org/article/df9976e1dd4a403d87eb8cc15acdd513',
+        pdfUrl: 'https://doi.org/10.22034/jmi.2024.451038.3080',
+        coverUrl: './covers/pub-2024-jmi-fund-fa.png',
       },
       {
         id: 'pub-2024-jokog-saudi',
@@ -1487,7 +1533,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         type: 'Journal',
         typeLabel: 'مقاله علمی',
         citations: 0,
-        doi: 'نمایه مگیران / دانش حکمرانی',
+        doi: '10.22034/jokog.2024.201790',
         topics: ['حکمرانی انرژی', 'صنعت نفت و گاز', 'حکمرانی شرکتی'],
         abstract:
           'تحلیل ابعاد نهادی، رگولاتوری و حکمرانی شرکتی مدیریت منابع هیدروکربنی در عربستان سعودی و ساختار شرکت ملی آرامکو با هدف استخراج درس‌آموخته‌های کاربردی برای سیاست‌گذاری بخش بالادست و پایین‌دست نفت و گاز.',
@@ -1497,20 +1543,22 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   title={Examining the dimensions of energy governance, focusing on the oil and gas industry; A case study of Saudi Arabia},
   author={Homayoun, Mohammad Bagher and Akbari, Mohammadreza and Heydari, Hamid and Sohankar, Amirhossein},
   journal={Quarterly Journal of Governance Knowledge},
-  year={2024}
+  year={2024},
+  doi={10.22034/jokog.2024.201790}
 }`,
-        pdfUrl: 'https://scholar.google.com/scholar?q=%22Examining+the+dimensions+of+energy+governance%22+Homayoun',
+        pdfUrl: 'https://www.jokog.ir/article_201790.html',
+        coverUrl: './covers/pub-2024-jokog-saudi-fa.png',
       },
       {
         id: 'pub-2024-sspp-subsidies',
         title: 'اصلاح نظام یارانه‌های انرژی ایران با معرفی رویکرد جدید بازتوزیع یارانه‌های انرژی؛ مطالعه موردی برق و گاز طبیعی',
-        authors: 'محمدباقر همایون، محمدرضا اکبری، اسماعیل سقاب اصفهانی و همکاران',
+        authors: 'محمدباقر همایون، محمدرضا اکبری، اسماعیل سقاب اصفهانی، حمید حیدری، امیرحسین سوهانکار، سید مجید میری لاری‌می',
         venue: 'فصلنامه مطالعات راهبردی سیاست‌گذاری عمومی',
         year: 2024,
         type: 'Journal',
         typeLabel: 'مقاله علمی',
         citations: 0,
-        doi: 'نمایه پرتال نشریات / انسانی',
+        doi: '10.22034/sspp.2024.2025011.3584',
         topics: ['سیاست انرژی', 'اصلاح یارانه', 'برق و گاز طبیعی'],
         abstract:
           'معرفی سازوکار ساختاریافته بازتوزیع یارانه‌های برق و گاز طبیعی برای مهار ناکارآمدی مصرف، حفظ پایداری مالی دولت، صیانت از رفاه خانوارها و ایجاد انگیزه اقتصادی برای مصرف بهینه انرژی.',
@@ -1520,9 +1568,11 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
   title={Iran's energy subsidies reform by introducing the new approach of redistributing energy subsidies; A case study of electricity and natural gas},
   author={Homayoun, Mohammad Bagher and Akbari, Mohammadreza and Saghab Esfahani, Esmail},
   journal={Strategic Studies of Public Policy},
-  year={2024}
+  year={2024},
+  doi={10.22034/sspp.2024.2025011.3584}
 }`,
-        pdfUrl: 'https://scholar.google.com/scholar?q=%22redistributing+energy+subsidies%22+Homayoun',
+        pdfUrl: 'https://sspp.iranjournals.ir/article_715727.html',
+        coverUrl: './covers/pub-2024-sspp-subsidies-fa.png',
       },
       {
         id: 'pub-2023-ripi-cfd',
@@ -1533,19 +1583,21 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         type: 'Journal',
         typeLabel: 'مقاله علمی',
         citations: 0,
-        doi: 'نمایه RIPI / SID',
+        doi: '10.22078/pr.2022.4788.3148',
         topics: ['هیدرولیک حفاری', 'CFD چاه', 'بهینه‌سازی مش'],
         abstract:
-          'ارزیابی اندازه‌های مختلف شبکه مش چهاروجهی (۱۰۰، ۲۰۰، ۴۷۵ و ۵۰۰ هزار المان) در شبیه‌سازی دوفازی جامد–مایع تمیزکاری چاه با نرم‌افزار ANSYS و اعتبارسنجی در برابر داده‌های آزمایشگاهی مدار جریان دانشگاه صنعتی امیرکبیر.',
+          'ارزیابی اندازه‌های مختلف شبکه مش چهاروجهی (۱۰۰، ۲۰۰ و ۵۰۰ هزار المان و مدل E2-475) در شبیه‌سازی دوفازی جامد–مایع تمیزکاری چاه با نرم‌افزار ANSYS و اعتبارسنجی در برابر داده‌های آزمایشگاهی مدار جریان دانشگاه صنعتی امیرکبیر.',
         keyFinding:
-          'مدل بهینه E2-475 (با حدود ۴۷۵ هزار المان) رفتار انتقال کنده‌های کربنات کلسیم را با دقت بالا و هزینه محاسباتی کمتر بازتولید می‌کند.',
+          'مقایسه مدل‌های شبکه چهاروجهی با آزمایش‌های مدار جریان دانشگاه امیرکبیر، پیکربندی بهینه مش از نظر دقت انتقال کنده‌های CaCO3 و زمان حل عددی را مشخص می‌سازد.',
         bibtex: `@article{homayoun2023optimal,
   title={Comparison and Design of Optimal Mesh Size in Computational Fluid Dynamics Model of Well Cleaning},
   author={Homayoun, Mohammad Bagher and Dehvedar, Mohsen and Ashhar, Amir Hossein},
   journal={Journal of Petroleum Research},
-  year={2023}
+  year={2023},
+  doi={10.22078/pr.2022.4788.3148}
 }`,
-        pdfUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        pdfUrl: 'https://pr.ripi.ir/article_1308.html',
+        coverUrl: './covers/pub-2023-ripi-cfd-fa.png',
       },
       {
         id: 'pub-book-drilling',
@@ -1556,19 +1608,21 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         type: 'Book',
         typeLabel: 'کتاب دانشگاهی',
         citations: 0,
-        doi: 'کتاب دانشگاهی · انتشارات امیرکبیر',
+        doi: 'شابک 978-964-463-829-9 · انتشارات امیرکبیر',
         topics: ['هیدرولیک حفاری', 'سیال حفاری', 'کتاب درسی'],
         abstract:
-          'کتاب تخصصی دانشگاهی در مهندسی حفاری شامل تاریخچه و تعاریف پایه، وظایف و اجزای تشکیل‌دهنده سیال حفاری، خواص فیزیکی و شیمیایی افزودنی‌ها، انواع گل‌های حفاری، تجهیزات سطحی دکل و دستورالعمل‌های رفع مشکلات عملیاتی.',
+          'کتاب تخصصی دانشگاهی در ۳۸۳ صفحه شامل تاریخچه و تعاریف پایه مهندسی حفاری، وظایف و اجزای تشکیل‌دهنده سیال حفاری، خواص فیزیکی و شیمیایی افزودنی‌ها، انواع گل‌های حفاری، تجهیزات سطحی دکل و دستورالعمل‌های رفع مشکلات عملیاتی.',
         keyFinding:
           'جمع‌بندی منسجم دانش دانشگاهی و تجربه عملیاتی دانشکده مهندسی نفت دانشگاه امیرکبیر به عنوان منبع درسی دانشجویان و مهندسان حفاری.',
         bibtex: `@book{dehvedar2023drilling,
   title={Drilling Engineering -- Volume 1: Drilling Fluid},
   author={Dehvedar, Mohsen and Homayoun, Mohammad Bagher},
   publisher={Amirkabir University of Technology Publications},
+  isbn={978-964-463-829-9},
   year={2023}
 }`,
-        pdfUrl: 'https://www.researchgate.net/profile/Mohammad-Bagher-Homayoun',
+        pdfUrl: 'https://taaghche.com/book/97711',
+        coverUrl: './covers/pub-book-drilling.png',
       },
     ],
     timeline: [
@@ -1639,7 +1693,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         category: 'ژئومکانیک چاه',
         excerpt:
           'طراحی الاستیک مرسوم تنها بارهای لحظه‌ای حین تکمیل را می‌سنجد؛ اما در سازندهای تبخیری و شیل‌های خزنده، همگرایی تدریجی دیواره چاه تنش‌های برشی و له‌شدگی را به سیمان و جداری منتقل می‌کند.',
-        equationCallout: 'ε_total(t) = ε_elastic + ε_viscoelastic(t) + ε_viscoplastic(σ_eff, t)',
+        equationCallout:
+          String.raw`\boldsymbol{\varepsilon}_{\mathrm{total}}(t) = \boldsymbol{\varepsilon}_{\mathrm{el}} + \boldsymbol{\varepsilon}_{\mathrm{ve}}(t) + \boldsymbol{\varepsilon}_{\mathrm{vp}}(\boldsymbol{\sigma}_{\mathrm{eff}}, t), \qquad \sigma_{\theta\theta}\big|_{r=r_c} = f(\sigma_H, \sigma_h, t)`,
         sections: [
           {
             heading: '۱. فراتر از طراحی الاستیک ایستا',
@@ -1664,7 +1719,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         category: 'انگیزش مخزن',
         excerpt:
           'عملیات اسیدکاری میدانی سطوح زبر و تصادفی ایجاد می‌کند. ماشین‌کاری کانال‌های منظم روی مغزه‌های شکاف‌دار ایلام نشان می‌دهد چگونه عمق، عرض و سفتی سنگ رسانایی نهایی را تعیین می‌کنند.',
-        equationCallout: 'k_f w_f (σ_c)  ∝  f(d_channel, w_channel, E_rock, σ_closure)',
+        equationCallout:
+          String.raw`(k_f w_f)(\sigma_c) = \frac{w_{\mathrm{bar}}^3}{12}\,\Phi\!\left(\frac{d_{\mathrm{ch}}}{w_{\mathrm{ch}}},\,\frac{\sigma_c}{E_{\mathrm{Ilam}}},\,\nu\right)`,
         sections: [
           {
             heading: '۱. ابهام تصادفی بودن سطوح اسیدخورده',
@@ -1685,6 +1741,8 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
         category: 'سیاست انرژی',
         excerpt:
           'افزایش راندمان استخراج زیرزمینی تنها نیمی از مسیر است اگر در بخش پایین‌دست حدود ۳۰ درصد انرژی کشور تلف شود. هم‌راستاسازی ابزارهای قیمتی با صندوق بهینه‌سازی مصرف، حلقه مفقوده سرمایه‌گذاری بهره‌وری است.',
+        equationCallout:
+          String.raw`\Delta \mathrm{EI}_{\mathrm{ind}} = -\eta_{\mathrm{fund}}\,\frac{I_{\mathrm{opt}}}{E_{\mathrm{baseline}}} - \beta_{\mathrm{quota}}\,\Delta P_{\mathrm{effective}}`,
         sections: [
           {
             heading: '۱. توازن میان ابزارهای قیمتی و غیرقیمتی',

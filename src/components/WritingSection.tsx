@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useScroll } from 'framer-motion';
 import { ArrowUpRight, BookOpenText, Clock, X } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, UI_COPY, WritingItem } from '../data/profile';
+import { formatNum } from '../utils/format';
+import { LatexEquation } from './LatexEquation';
 
 function ArticleReaderDrawer({
   article,
@@ -79,7 +81,9 @@ function ArticleReaderDrawer({
           className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-10 py-7 sm:py-8 space-y-6"
         >
           <div className="space-y-3">
-            <span className="font-mono text-xs text-[#98A2B3]">{article.date}</span>
+            <span className="font-mono text-xs text-[#98A2B3]">
+              {formatNum(article.date, isRtl ? 'fa' : 'en')}
+            </span>
             <h3 className="text-2xl sm:text-4xl font-semibold tracking-tight text-[#F4F1EA] leading-snug">
               {article.title}
             </h3>
@@ -93,12 +97,10 @@ function ArticleReaderDrawer({
           </div>
 
           {article.equationCallout && (
-            <div
-              dir="ltr"
-              className="rounded-2xl bg-black/60 border border-[#2EE6D6]/30 p-4 font-mono text-xs sm:text-sm text-[#2EE6D6] overflow-x-auto"
-            >
-              {article.equationCallout}
-            </div>
+            <LatexEquation
+              latex={article.equationCallout}
+              label={isRtl ? 'رابطه تحلیلی // LaTeX' : 'ANALYTICAL MODEL // LaTeX'}
+            />
           )}
 
           <div className="space-y-6 pt-2">
@@ -185,10 +187,17 @@ export function WritingSection({ lang }: { lang: Lang }) {
                 <p className="text-xs sm:text-sm text-[#98A2B3] leading-relaxed">
                   {item.excerpt}
                 </p>
+                {item.equationCallout && (
+                  <LatexEquation
+                    latex={item.equationCallout}
+                    compact
+                    className="pointer-events-none my-1"
+                  />
+                )}
               </div>
 
               <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-[#F4F1EA]">
-                <span className="font-mono">{item.date}</span>
+                <span className="font-mono">{formatNum(item.date, lang)}</span>
                 <span className="inline-flex items-center gap-1 text-[#2EE6D6] group-hover:translate-x-0.5 transition-transform">
                   {copy.writing.readNote} <ArrowUpRight className="w-3.5 h-3.5" />
                 </span>

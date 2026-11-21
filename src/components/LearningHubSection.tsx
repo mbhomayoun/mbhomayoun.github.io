@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Lang } from '../data/profile';
 import { CmsPost, ContentPlacement } from '../types/cms';
+import { formatDateForLang, formatNum } from '../utils/format';
 
 interface LearningHubSectionProps {
   lang: Lang;
@@ -152,8 +153,8 @@ export function LearningHubSection({
                         <Icon className="w-3 h-3" />
                         {isRtl ? post.tagFa || post.tagEn : post.tagEn || post.tagFa}
                       </span>
-                      <span dir="ltr" className="font-mono text-[11px] text-[#98A2B3]">
-                        {post.date}
+                      <span dir={isRtl ? 'rtl' : 'ltr'} className="font-mono text-[11px] text-[#98A2B3]">
+                        {formatDateForLang(post.date, lang)}
                       </span>
                     </div>
 
@@ -171,8 +172,11 @@ export function LearningHubSection({
                   <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between gap-2 text-[11px]">
                     <span className="inline-flex items-center gap-1 text-[#98A2B3]">
                       <Lock className="w-3 h-3 text-[#2EE6D6]" />
-                      {post.durationOrPages ||
-                        (isRtl ? 'فقط قابل مشاهده' : 'View-Only')}
+                      {post.durationOrPages
+                        ? formatNum(post.durationOrPages, lang)
+                        : isRtl
+                          ? 'فقط قابل مشاهده'
+                          : 'View-Only'}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-[#2EE6D6] font-medium">
                       <Eye className="w-3.5 h-3.5" />

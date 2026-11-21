@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
+import { formatNum } from '../utils/format';
 
 interface CommandPaletteProps {
   lang: Lang;
@@ -110,7 +111,7 @@ export function CommandPalette({
         group: copy.command.groups.projects,
         kind: 'proj' as const,
         label: `${p.title} — ${p.categoryLabel}`,
-        hint: p.year,
+        hint: formatNum(p.year, lang),
         run: () => onNavigate('projects'),
       })),
       ...profile.publications.map((pub) => ({
@@ -118,7 +119,7 @@ export function CommandPalette({
         group: copy.command.groups.citations,
         kind: 'pub' as const,
         label: `${copy.command.bibtexPrefix} ${pub.title}`,
-        hint: `${pub.year}`,
+        hint: formatNum(pub.year, lang),
         run: () => {
           navigator.clipboard.writeText(pub.bibtex);
           setToast(copy.command.copiedBibtex);
@@ -135,6 +136,7 @@ export function CommandPalette({
     onToggleReducedMotion,
     profile,
     reducedMotion,
+    lang,
   ]);
 
   const filtered = useMemo(() => {
@@ -239,7 +241,11 @@ export function CommandPalette({
                         </div>
                       </div>
                     </div>
-                    <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/8 text-[#98A2B3] shrink-0">
+                    <span
+                      className={`font-mono text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/8 text-[#98A2B3] shrink-0 ${
+                        item.kind === 'lang' ? 'font-fa-force' : ''
+                      }`}
+                    >
                       {item.hint}
                     </span>
                   </button>

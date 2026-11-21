@@ -3,8 +3,29 @@ import { PublicationItem, TimelineItem } from '../data/profile';
 
 const LOCAL_CMS_KEY = 'observatory-cms-local-v1';
 const LOCAL_DISMISSED_ALERTS_KEY = 'observatory-dismissed-alerts';
-const RAW_REMOTE_URL =
-  'https://raw.githubusercontent.com/homayounmb/homayounmb.github.io/main/public/data/cms-content.json';
+
+function getRawCmsUrls(): string[] {
+  const urls: string[] = [];
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host.endsWith('.github.io')) {
+      const owner = host.replace(/\.github\.io$/, '');
+      if (owner) {
+        urls.push(
+          `https://raw.githubusercontent.com/${owner}/${owner}.github.io/main/public/data/cms-content.json`
+        );
+      }
+    }
+  }
+  const defaults = [
+    'https://raw.githubusercontent.com/mbhomayoun/mbhomayoun.github.io/main/public/data/cms-content.json',
+    'https://raw.githubusercontent.com/homayounmb/homayounmb.github.io/main/public/data/cms-content.json',
+  ];
+  for (const u of defaults) {
+    if (!urls.includes(u)) urls.push(u);
+  }
+  return urls;
+}
 
 export const DEFAULT_CMS: CmsPayload = {
   version: 1,
@@ -58,16 +79,23 @@ export async function fetchInitialCms(): Promise<CmsPayload> {
       !window.location.hostname.includes('localhost') &&
       !window.location.hostname.includes('127.0.0.1')
     ) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2800);
-      const rawRes = await fetch(`${RAW_REMOTE_URL}?t=${Date.now()}`, {
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-      if (rawRes.ok) {
-        const remote = (await rawRes.json()) as CmsPayload;
-        if (remote && Array.isArray(remote.posts)) {
-          base = remote;
+      for (const rawUrl of getRawCmsUrls()) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 2400);
+        try {
+          const rawRes = await fetch(`${rawUrl}?t=${Date.now()}`, {
+            signal: controller.signal,
+          });
+          clearTimeout(timer);
+          if (rawRes.ok) {
+            const remote = (await rawRes.json()) as CmsPayload;
+            if (remote && Array.isArray(remote.posts)) {
+              base = remote;
+              break;
+            }
+          }
+        } catch {
+          clearTimeout(timer);
         }
       }
     }

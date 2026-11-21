@@ -19,10 +19,13 @@ import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { Lang } from '../data/profile';
 import { CmsPost } from '../types/cms';
+import { formatDateForLang, formatNum } from '../utils/format';
+import { LatexEquation } from './LatexEquation';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 function PdfCanvasViewer({ url, isRtl }: { url: string; isRtl: boolean }) {
+  const lang: Lang = isRtl ? 'fa' : 'en';
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
   const [pageNum, setPageNum] = useState(1);
@@ -102,8 +105,8 @@ function PdfCanvasViewer({ url, isRtl }: { url: string; isRtl: boolean }) {
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span dir="ltr" className="font-mono text-xs text-[#F4F1EA]">
-            {pageNum} / {numPages || '—'}
+          <span dir={isRtl ? 'rtl' : 'ltr'} className="font-mono text-xs text-[#F4F1EA]">
+            {formatNum(pageNum, lang)} / {numPages ? formatNum(numPages, lang) : '—'}
           </span>
           <button
             type="button"
@@ -123,8 +126,9 @@ function PdfCanvasViewer({ url, isRtl }: { url: string; isRtl: boolean }) {
           >
             <ZoomOut className="w-4 h-4" />
           </button>
-          <span dir="ltr" className="font-mono text-xs text-[#98A2B3]">
-            {Math.round(scale * 100)}%
+          <span dir={isRtl ? 'rtl' : 'ltr'} className="font-mono text-xs text-[#98A2B3]">
+            {formatNum(Math.round(scale * 100), lang)}
+            {isRtl ? '٪' : '%'}
           </span>
           <button
             type="button"
@@ -340,8 +344,8 @@ export function ProtectedViewerModal({
                   <span className="text-[#F5B971]">
                     {isRtl ? post.tagFa || post.tagEn : post.tagEn || post.tagFa}
                   </span>
-                  <span dir="ltr" className="font-mono text-[#98A2B3]">
-                    {post.date}
+                  <span dir={isRtl ? 'rtl' : 'ltr'} className="font-mono text-[#98A2B3]">
+                    {formatDateForLang(post.date, lang)}
                   </span>
                 </div>
                 <h3 className="text-xl sm:text-3xl font-semibold text-[#F4F1EA] leading-snug">
@@ -386,12 +390,10 @@ export function ProtectedViewerModal({
             )}
 
             {post.equation && (
-              <div
-                dir="ltr"
-                className="rounded-2xl bg-black/55 border border-[#2EE6D6]/30 p-4 font-mono text-xs sm:text-sm text-[#2EE6D6] overflow-x-auto"
-              >
-                {post.equation}
-              </div>
+              <LatexEquation
+                latex={post.equation}
+                label={isRtl ? 'مدل ریاضی // LaTeX' : 'MATHEMATICAL MODEL // LaTeX'}
+              />
             )}
 
             {/* Text Content */}

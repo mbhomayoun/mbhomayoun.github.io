@@ -33,6 +33,7 @@ import {
   syncOpenAlexPublications,
   uploadMaterialFileToGitHub,
 } from '../services/githubSync';
+import { formatNum } from '../utils/format';
 import { CmsPayload, CmsPost, ContentPlacement } from '../types/cms';
 
 interface AdminStudioModalProps {
@@ -487,7 +488,7 @@ export function AdminStudioModal({
                     autoComplete="username"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="mb.homayoun@aut.ac.ir"
+                    placeholder="admin@example.com"
                     className="w-full rounded-xl bg-black/50 border border-white/10 px-4 py-2.5 text-sm text-[#F4F1EA] focus:outline-none focus:border-[#2EE6D6]"
                   />
                 </div>
@@ -676,7 +677,7 @@ export function AdminStudioModal({
                         <button
                           type="button"
                           onClick={() => setSourceLang('fa')}
-                          className={`px-2.5 py-0.5 rounded-full cursor-pointer ${
+                          className={`font-fa-force px-2.5 py-0.5 rounded-full cursor-pointer ${
                             sourceLang === 'fa'
                               ? 'bg-[#F4F1EA] text-[#050608] font-semibold'
                               : 'text-[#98A2B3]'
@@ -951,7 +952,7 @@ export function AdminStudioModal({
               <div className="space-y-2.5">
                 <div className="text-xs font-semibold text-[#98A2B3]">
                   {isRtl
-                    ? `مطالب منتشرشده (${cmsData.posts.length})`
+                    ? `مطالب منتشرشده (${formatNum(cmsData.posts.length, 'fa')})`
                     : `Published Items (${cmsData.posts.length})`}
                 </div>
                 <div className="space-y-2 max-h-48 overflow-y-auto overscroll-contain">
