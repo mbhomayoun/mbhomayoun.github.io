@@ -3,24 +3,7 @@
   "lastSyncedAt": "2026-11-21T08:00:00Z",
   "openAlexAuthorId": "A5120058838",
   "scholarAuthorId": "",
-  "posts": [
-    {
-      "id": "post-blog-viscoelastic",
-      "placement": "blog",
-      "urgent": false,
-      "date": "2026-11-15",
-      "tagEn": "Research Dispatch",
-      "tagFa": "گزارش پژوهشی",
-      "titleEn": "Inside the 3D Sequential Rock–Cement–Casing Creep Benchmark",
-      "titleFa": "مروری بر مدل‌سازی متوالی سه‌بعدی خزش سنگ–سیمان–لوله جداری",
-      "summaryEn": "How sequential excavation, hydration, and multi-year anisotropic loading reveal realistic casing collapse derating.",
-      "summaryFa": "چگونه شبیه‌سازی مرحله‌ای حفاری، هیدراتاسیون سیمان و بارگذاری ناهمسانگرد بلندمدت، افت واقعی مقاومت له‌شدگی جداری را آشکار می‌کند.",
-      "bodyEn": "Traditional casing design relies on static elastic solutions that underestimate how ductile formations relax deviatoric stress over years of production.\n\nIn our 2026 formulation, sequential finite-element steps capture drilling unloading, cement curing, and long-term viscoelastic-plastic creep simultaneously under unequal horizontal principal stresses.",
-      "bodyFa": "طراحی متداول لوله جداری بر فرضیات الاستیک ایستا تکیه دارد که آرامش تدریجی تنش انحرافی در سازندهای شکل‌پذیر را طی سال‌های بهره‌برداری دست‌کم می‌گیرد.\n\nدر فرمولاسیون ۲۰۲۶ ما، مراحل متوالی اجزای محدود شامل حفاری، گیرش سیمان و خزش ویسکوالاستوپلاستیک بلندمدت به صورت هم‌زمان تحت تنش‌های اصلی افقی نابرابر تحلیل می‌شوند.",
-      "equation": "ε(t) = ε_el + ε_ve(t) + ε_vp(σ_eff, t)",
-      "mediaType": "none"
-    }
-  ],
+  "posts": [],
   "syncedPublications": [],
   "timelineOverrides": []
 }
