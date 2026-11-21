@@ -73,18 +73,28 @@ export function ContactSection({
         throw new Error(`HTTP ${res.status}`);
       }
 
-      const data = (await res.json()) as { success?: string | boolean };
+      const data = (await res.json()) as { success?: string | boolean; message?: string };
       if (data.success === false || data.success === 'false') {
-        throw new Error('Submission rejected by mail relay');
+        const msg = data.message || '';
+        if (msg.toLowerCase().includes('activation')) {
+          setSubmitError(
+            isRtl
+              ? `ایمیل فعال‌سازی فرم به نشانی ${profile.email} ارسال شده است. لطفاً صندوق ورودی (یا Spam) را باز کرده و لینک Activate Form را یک‌بار تأیید کنید، سپس دوباره ارسال بزنید.`
+              : `Activation link has been sent to ${profile.email}. Please check your inbox (or Spam) and click "Activate Form" once, then send again.`
+          );
+          return;
+        }
+        throw new Error(msg || 'Submission rejected by mail relay');
       }
 
       setSubmitted(true);
       setForm({ name: '', email: '', topic: '', message: '' });
-    } catch {
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : '';
       setSubmitError(
         isRtl
-          ? 'ارسال مستقیم با خطا مواجه شد. لطفاً از دکمه «ارسال با برنامه ایمیل» زیر استفاده کنید.'
-          : 'Direct delivery could not reach the mail relay. You can send via your email app below.'
+          ? `ارسال مستقیم با خطا مواجه شد${detail ? ` (${detail})` : ''}. لطفاً از دکمه «ارسال با برنامه ایمیل» زیر استفاده کنید.`
+          : `Direct delivery failed${detail ? ` (${detail})` : ''}. You can send via your email app below.`
       );
     } finally {
       setSending(false);
