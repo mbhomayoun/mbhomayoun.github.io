@@ -5,21 +5,6 @@
   "scholarAuthorId": "",
   "posts": [
     {
-      "id": "post-welcome-notice",
-      "placement": "alert",
-      "urgent": true,
-      "date": "2026-11-21",
-      "tagEn": "Academic Notice",
-      "tagFa": "اطلاعیه آموزشی",
-      "titleEn": "Office Hours & Geomechanics Seminar Schedule Updated",
-      "titleFa": "به‌روزرسانی برنامه جلسات رفع اشکال و سمینار ژئومکانیک",
-      "summaryEn": "Weekly wellbore mechanics & CFD office hours have shifted to Tuesdays 14:00–16:00 (AUT Petroleum Dept.).",
-      "summaryFa": "ساعات هفتگی رفع اشکال مکانیک چاه و شبیه‌سازی CFD به روزهای سه‌شنبه ساعت ۱۴ تا ۱۶ (دانشکده مهندسی نفت امیرکبیر) منتقل شد.",
-      "bodyEn": "Students and research collaborators working on formation creep modeling, API RP-61 carbonate conductivity data, or ANSYS wellbore cleanup meshes may drop by during Tuesday office hours or send an inquiry through the contact section.",
-      "bodyFa": "دانشجویان و پژوهشگران همکار در پروژه‌های خزش سازند، تحلیل داده‌های رسانایی کربناته API RP-61 یا مش‌بندی ANSYS پاک‌سازی چاه می‌توانند سه‌شنبه‌ها از ساعت ۱۴ تا ۱۶ مراجعه کنند یا از بخش تماس پیام ارسال نمایند.",
-      "mediaType": "none"
-    },
-    {
       "id": "post-blog-viscoelastic",
       "placement": "blog",
       "urgent": false,
