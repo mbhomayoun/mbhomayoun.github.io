@@ -1,9 +1,15 @@
 import { FormEvent, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Check, Copy, Mail, Send } from 'lucide-react';
+import { ArrowUpRight, Check, Copy, Lock, Mail, Send } from 'lucide-react';
 import { Lang, PROFILE_BY_LANG, UI_COPY } from '../data/profile';
 
-export function ContactSection({ lang }: { lang: Lang }) {
+export function ContactSection({
+  lang,
+  onOpenAdmin,
+}: {
+  lang: Lang;
+  onOpenAdmin?: () => void;
+}) {
   const [copied, setCopied] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', topic: '', message: '' });
@@ -249,8 +255,19 @@ export function ContactSection({ lang }: { lang: Lang }) {
           <div>
             © {new Date().getFullYear()} {profile.fullName} — {copy.contact.footerSuffix}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <span>{copy.contact.footerShortcut}</span>
+            {onOpenAdmin && (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                aria-label="Owner access"
+                title="Owner login"
+                className="p-1.5 rounded-full text-white/20 hover:text-[#2EE6D6] hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                <Lock className="w-3 h-3" />
+              </button>
+            )}
           </div>
         </footer>
       </div>

@@ -7,7 +7,6 @@ import {
   FileText,
   Lock,
   Newspaper,
-  Settings2,
   Video,
 } from 'lucide-react';
 import { Lang } from '../data/profile';
@@ -17,14 +16,12 @@ interface LearningHubSectionProps {
   lang: Lang;
   posts: CmsPost[];
   onPreview: (post: CmsPost) => void;
-  onOpenAdmin: () => void;
 }
 
 export function LearningHubSection({
   lang,
   posts,
   onPreview,
-  onOpenAdmin,
 }: LearningHubSectionProps) {
   const [filter, setFilter] = useState<'all' | ContentPlacement>('all');
   const isRtl = lang === 'fa';
@@ -55,42 +52,29 @@ export function LearningHubSection({
   return (
     <section id="academy" className="relative py-16 sm:py-20 px-4 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl space-y-8">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
-          <div>
-            <div className="text-[11px] tracking-[0.18em] text-[#2EE6D6] mb-2">
-              {isRtl
-                ? '۰۵ // وبلاگ، اطلاعیه‌ها و مخزن امن آموزشی'
-                : '05 // BLOG, ANNOUNCEMENTS & PROTECTED COURSE VAULT'}
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-[#F4F1EA]">
-              {isRtl ? 'یادگیری، وبلاگ و ' : 'Teaching, Blog & '}
-              <span
-                className={
-                  isRtl
-                    ? 'text-[#2EE6D6] font-bold'
-                    : 'font-serif italic font-normal text-[#2EE6D6]'
-                }
-              >
-                {isRtl ? 'منابع درسی' : 'Materials'}
-              </span>
-            </h2>
-            <p className="mt-2 text-xs sm:text-sm text-[#98A2B3] max-w-2xl">
-              {isRtl
-                ? 'تمامی ویدئوها، جزوات و فایل‌های PDF با رعایت کامل کپی‌رایت به صورت فقط‌خواندنی و بدون قابلیت دانلود مستقیم روی سایت پیش‌نمایش داده می‌شوند.'
-                : 'All course videos, lecture notes, and slide decks are view-only protected in-browser (no direct download) to preserve academic copyright.'}
-            </p>
+        <div>
+          <div className="text-[11px] tracking-[0.18em] text-[#2EE6D6] mb-2">
+            {isRtl
+              ? '۰۵ // وبلاگ، اطلاعیه‌ها و مخزن امن آموزشی'
+              : '05 // BLOG, ANNOUNCEMENTS & PROTECTED COURSE VAULT'}
           </div>
-
-          <button
-            type="button"
-            onClick={onOpenAdmin}
-            data-cursor="ADMIN"
-            className="glass-panel rounded-full px-4 py-2 text-xs font-medium text-[#F4F1EA] hover:border-[#2EE6D6]/50 hover:text-[#2EE6D6] transition-colors inline-flex items-center gap-2 w-fit cursor-pointer"
-          >
-            <Settings2 className="w-3.5 h-3.5 text-[#2EE6D6]" />
-            <span>{isRtl ? 'ورود به پنل مدیریت و AI' : 'Admin Studio & AI'}</span>
-          </button>
+          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-[#F4F1EA]">
+            {isRtl ? 'یادگیری، وبلاگ و ' : 'Teaching, Blog & '}
+            <span
+              className={
+                isRtl
+                  ? 'text-[#2EE6D6] font-bold'
+                  : 'font-serif italic font-normal text-[#2EE6D6]'
+              }
+            >
+              {isRtl ? 'منابع درسی' : 'Materials'}
+            </span>
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm text-[#98A2B3] max-w-2xl">
+            {isRtl
+              ? 'تمامی ویدئوها، جزوات و فایل‌های PDF با رعایت کامل کپی‌رایت به صورت فقط‌خواندنی و بدون قابلیت دانلود مستقیم روی سایت پیش‌نمایش داده می‌شوند.'
+              : 'All course videos, lecture notes, and slide decks are view-only protected in-browser (no direct download) to preserve academic copyright.'}
+          </p>
         </div>
 
         {/* Filter Pills */}

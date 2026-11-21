@@ -8,7 +8,6 @@ import {
   FlaskConical,
   Globe,
   Search,
-  Settings2,
   Sparkles,
   Terminal,
   X,
@@ -21,7 +20,6 @@ interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
   onNavigate: (sectionId: string) => void;
-  onOpenAdmin: () => void;
   reducedMotion: boolean;
   onToggleReducedMotion: () => void;
 }
@@ -29,7 +27,7 @@ interface CommandPaletteProps {
 interface CommandAction {
   id: string;
   group: string;
-  kind: 'nav' | 'lang' | 'motion' | 'copy' | 'proj' | 'pub' | 'admin';
+  kind: 'nav' | 'lang' | 'motion' | 'copy' | 'proj' | 'pub';
   label: string;
   hint: string;
   run: () => void;
@@ -41,7 +39,6 @@ export function CommandPalette({
   open,
   onClose,
   onNavigate,
-  onOpenAdmin,
   reducedMotion,
   onToggleReducedMotion,
 }: CommandPaletteProps) {
@@ -78,17 +75,6 @@ export function CommandPalette({
     }));
 
     const utilityActions: CommandAction[] = [
-      {
-        id: 'open-admin',
-        group: copy.command.groups.utilities,
-        kind: 'admin',
-        label:
-          lang === 'fa'
-            ? 'پنل مدیریت، آپلود و دستیار هوش مصنوعی'
-            : 'Open Admin Studio, Uploads & AI Translator',
-        hint: 'Admin',
-        run: () => onOpenAdmin(),
-      },
       {
         id: 'switch-lang',
         group: copy.command.groups.utilities,
@@ -144,9 +130,7 @@ export function CommandPalette({
     return [...navActions, ...utilityActions];
   }, [
     copy,
-    lang,
     onNavigate,
-    onOpenAdmin,
     onToggleLang,
     onToggleReducedMotion,
     profile,
@@ -219,19 +203,17 @@ export function CommandPalette({
                 const Icon =
                   item.kind === 'nav'
                     ? Compass
-                    : item.kind === 'admin'
-                      ? Settings2
-                      : item.kind === 'lang'
-                        ? Globe
-                        : item.kind === 'motion'
-                          ? Sparkles
-                          : item.kind === 'pub'
-                            ? BookOpen
-                            : item.kind === 'proj'
-                              ? FlaskConical
-                              : item.kind === 'copy'
-                                ? Copy
-                                : Terminal;
+                    : item.kind === 'lang'
+                      ? Globe
+                      : item.kind === 'motion'
+                        ? Sparkles
+                        : item.kind === 'pub'
+                          ? BookOpen
+                          : item.kind === 'proj'
+                            ? FlaskConical
+                            : item.kind === 'copy'
+                              ? Copy
+                              : Terminal;
 
                 return (
                   <button

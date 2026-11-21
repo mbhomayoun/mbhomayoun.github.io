@@ -1,0 +1,3 @@
+name = "homayoun-observatory-admin"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"

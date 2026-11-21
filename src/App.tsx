@@ -134,6 +134,16 @@ export function App() {
   }, [cmdOpen, adminOpen, previewPost]);
 
   useEffect(() => {
+    const onHash = () => {
+      if (window.location.hash === '#admin') {
+        setAdminOpen(true);
+      }
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -213,10 +223,9 @@ export function App() {
           lang={lang}
           posts={cmsData.posts}
           onPreview={(post) => setPreviewPost(post)}
-          onOpenAdmin={() => setAdminOpen(true)}
         />
         <WritingSection lang={lang} />
-        <ContactSection lang={lang} />
+        <ContactSection lang={lang} onOpenAdmin={() => setAdminOpen(true)} />
       </main>
 
       <CommandPalette
@@ -225,7 +234,6 @@ export function App() {
         open={cmdOpen}
         onClose={() => setCmdOpen(false)}
         onNavigate={navigateTo}
-        onOpenAdmin={() => setAdminOpen(true)}
         reducedMotion={reducedMotion}
         onToggleReducedMotion={() => setReducedMotion((v) => !v)}
       />
