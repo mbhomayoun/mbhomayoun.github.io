@@ -12,7 +12,10 @@ export function ContactSection({
   onOpenAdmin?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [sending, setSending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
   const [form, setForm] = useState({ name: '', email: '', topic: '', message: '' });
 
   const profile = PROFILE_BY_LANG[lang];
@@ -25,13 +28,67 @@ export function ContactSection({
     setTimeout(() => setCopied(false), 1800);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const buildMailtoHref = () => {
+    const subject = encodeURIComponent(
+      form.topic.trim()
+        ? `[Website Inquiry] ${form.topic.trim()}`
+        : `[Website Inquiry] Message from ${form.name.trim() || 'Visitor'}`
+    );
+    const body = encodeURIComponent(
+      `From: ${form.name.trim()} (${form.email.trim()})\n\n${form.message.trim()}`
+    );
+    return `mailto:${profile.email}?subject=${subject}&body=${body}`;
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return;
-    setSubmitted(true);
-    setTimeout(() => {
+    if (honeypot) return;
+
+    setSending(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(profile.email)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          _subject: form.topic.trim()
+            ? `[mbhomayoun.github.io] ${form.topic.trim()}`
+            : `[mbhomayoun.github.io] Inquiry from ${form.name.trim()}`,
+          _template: 'table',
+          _captcha: 'false',
+          _replyto: form.email.trim(),
+          name: form.name.trim(),
+          email: form.email.trim(),
+          topic: form.topic.trim() || 'General Research / Collaboration',
+          message: form.message.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = (await res.json()) as { success?: string | boolean };
+      if (data.success === false || data.success === 'false') {
+        throw new Error('Submission rejected by mail relay');
+      }
+
+      setSubmitted(true);
       setForm({ name: '', email: '', topic: '', message: '' });
-    }, 300);
+    } catch {
+      setSubmitError(
+        isRtl
+          ? 'ارسال مستقیم با خطا مواجه شد. لطفاً از دکمه «ارسال با برنامه ایمیل» زیر استفاده کنید.'
+          : 'Direct delivery could not reach the mail relay. You can send via your email app below.'
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -177,6 +234,15 @@ export function ContactSection({
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                <input
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  aria-hidden="true"
+                  className="hidden"
+                />
                 <div className="flex items-center justify-between text-[11px] tracking-wider text-[#98A2B3]">
                   <span>{copy.contact.formTitle}</span>
                   <span className="text-[#2EE6D6]">{copy.contact.formStatus}</span>
@@ -239,13 +305,31 @@ export function ContactSection({
                   />
                 </div>
 
+                {submitError && (
+                  <div className="rounded-xl bg-[#F5B971]/12 border border-[#F5B971]/35 p-3.5 text-xs text-[#F5B971] space-y-2">
+                    <p>{submitError}</p>
+                    <a
+                      href={buildMailtoHref()}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#F5B971] text-[#050608] font-semibold px-3.5 py-1.5 text-[11px]"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      {isRtl ? 'ارسال با برنامه ایمیل' : 'Open in Email App'}
+                    </a>
+                  </div>
+                )}
+
                 <button
                   type="submit"
+                  disabled={sending}
                   data-cursor="SEND"
-                  className="w-full rounded-full bg-[#F4F1EA] hover:bg-[#2EE6D6] text-[#050608] font-semibold text-sm py-3.5 px-6 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full rounded-full bg-[#F4F1EA] hover:bg-[#2EE6D6] disabled:opacity-60 text-[#050608] font-semibold text-sm py-3.5 px-6 flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
-                  {copy.contact.send}
+                  {sending
+                    ? isRtl
+                      ? 'در حال ارسال...'
+                      : 'Sending...'
+                    : copy.contact.send}
                 </button>
               </form>
             )}
