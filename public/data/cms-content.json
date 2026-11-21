@@ -34,23 +34,6 @@
       "bodyFa": "طراحی متداول لوله جداری بر فرضیات الاستیک ایستا تکیه دارد که آرامش تدریجی تنش انحرافی در سازندهای شکل‌پذیر را طی سال‌های بهره‌برداری دست‌کم می‌گیرد.\n\nدر فرمولاسیون ۲۰۲۶ ما، مراحل متوالی اجزای محدود شامل حفاری، گیرش سیمان و خزش ویسکوالاستوپلاستیک بلندمدت به صورت هم‌زمان تحت تنش‌های اصلی افقی نابرابر تحلیل می‌شوند.",
       "equation": "ε(t) = ε_el + ε_ve(t) + ε_vp(σ_eff, t)",
       "mediaType": "none"
-    },
-    {
-      "id": "post-note-well-cleaning",
-      "placement": "note",
-      "urgent": false,
-      "date": "2026-11-08",
-      "tagEn": "Lecture Note",
-      "tagFa": "جزوه آموزشی",
-      "titleEn": "Course Module: Grid Independence & Two-Phase Cuttings Transport (Model E2-475)",
-      "titleFa": "جزوه درسی: استقلال از شبکه و انتقال دوفازی کنده‌های حفاری (مدل E2-475)",
-      "summaryEn": "View-only lecture handout covering Eulerian–Eulerian CFD setup, boundary conditions, and mesh refinement.",
-      "summaryFa": "جزوه فقط‌خواندنی شامل تنظیمات شبیه‌سازی اویلری–اویلری، شرایط مرزی و بهینه‌سازی شبکه مش در ANSYS.",
-      "bodyEn": "1. Define continuous liquid phase and dispersed CaCO3 solid particle properties.\n\n2. Model the four-nozzle drill bit simulator inlet velocity profile accurately.\n\n3. Perform systematic mesh convergence across 100k, 200k, 475k, and 500k tetrahedral elements: Model E2-475 achieves optimal accuracy-to-runtime balance.\n\nNote: This material is view-only and protected for course participants.",
-      "bodyFa": "۱. تعریف خواص فاز پیوسته سیال حفاری و فاز پراکنده ذرات جامد کربنات کلسیم (CaCO3).\n\n۲. اعمال دقیق پروفیل سرعت ورودی در شبیه‌ساز مته چهارنازله.\n\n۳. انجام تحلیل همگرایی مش روی شبکه‌های ۱۰۰، ۲۰۰، ۴۷۵ و ۵۰۰ هزار المانی: مدل E2-475 بهترین توازن دقت و زمان اجرا را ارائه می‌دهد.\n\nتوجه: این محتوا به صورت فقط‌خواندنی و با حفظ حقوق مؤلف روی سایت قابل مشاهده است.",
-      "equation": "∂ₜ(α_s ρ_s u_s) + ∇·(α_s ρ_s u_s ⊗ u_s) = −α_s∇p + M_drag + α_s ρ_s g",
-      "mediaType": "none",
-      "durationOrPages": "View-Only Note"
     }
   ],
   "syncedPublications": [],
