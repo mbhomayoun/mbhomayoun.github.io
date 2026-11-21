@@ -49,17 +49,21 @@ export function Preloader({ onComplete, lang }: PreloaderProps) {
           }}
           className="fixed inset-0 z-[100] flex flex-col justify-between bg-[#050608] p-6 sm:p-10 border-b border-white/10"
         >
-          <div className="flex items-center justify-between font-mono text-xs tracking-widest text-[#98A2B3] uppercase">
-            <span>{copy.preloaderInit}</span>
-            <span dir="ltr">{profile.coordinates}</span>
+          <div className="flex items-center justify-between gap-3 font-mono text-[10px] sm:text-xs tracking-wider sm:tracking-widest text-[#98A2B3] uppercase">
+            <span className="truncate">{copy.preloaderInit}</span>
+            <span dir={lang === 'fa' ? 'rtl' : 'ltr'} className="whitespace-nowrap shrink-0">
+              {profile.coordinates}
+            </span>
           </div>
 
           <div className="mx-auto flex flex-col items-center text-center">
             <motion.div
+              dir="ltr"
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.45 }}
-              className="font-serif text-6xl sm:text-8xl italic text-[#F4F1EA] tracking-tight"
+              style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
+              className="text-6xl sm:text-8xl text-[#F4F1EA] tracking-tight"
             >
               {profile.monogram}
             </motion.div>

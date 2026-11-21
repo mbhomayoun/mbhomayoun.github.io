@@ -1147,7 +1147,7 @@ export const PROFILE_BY_LANG: Record<Lang, ProfileData> = {
 
   fa: {
     pageTitle: 'محمدباقر همایون (MB Homayoun) — ژئومکانیک مخازن، حفاری و سامانه‌های انرژی',
-    monogram: 'م‌ه‌.',
+    monogram: 'MBH.',
     fullName: 'محمدباقر همایون',
     shortName: 'محمدباقر همایون',
     brandSubtitle: 'رصدخانه علمی',
