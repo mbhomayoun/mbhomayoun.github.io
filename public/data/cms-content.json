@@ -1,9 +1,86 @@
 {
   "version": 1,
-  "lastSyncedAt": "2026-11-21T08:00:00Z",
+  "lastSyncedAt": "2026-11-22T10:23:21.737007Z",
   "openAlexAuthorId": "A5120058838",
   "scholarAuthorId": "",
   "posts": [],
-  "syncedPublications": [],
+  "syncedPublications": [
+    {
+      "id": "oa-W4415338737",
+      "title": "Experimental investigation into the influence of rock mechanical properties and etching patterns on acid fracture conductivity in the ilam carbonate formation",
+      "authors": "Mohammadreza Akbari, Mohammad Javad Ameri, Mohammad Bagher Homayoun",
+      "venue": "Scientific Reports",
+      "year": 2026,
+      "type": "Journal",
+      "citations": 0,
+      "doi": "10.1038/s41598-026-76933-8",
+      "topics": [
+        "Conductivity",
+        "Fracture (geology)",
+        "Superposition principle"
+      ],
+      "abstract": "Acid fracturing represents a primary stimulation technique for unlocking commercial hydrocarbon productivity in tight carbonate reservoirs, yet predicting post-treatment fracture conductivity under closure stress remains challenging due to the coupled effects of dissolution geometry and rock mechanical deformation. In this study, we present an experimental methodology that decouples mechanical closure from stochastic dissolution kinetics by machining deterministic, idealized channel geometries onto standardized split core plugs (18.4 cm length × 4.75 cm width) of Cretaceous Ilam formation limestone from southwest Iran. Using an API RP-61 compliant high-pressure conductivity cell, tests were conducted across systematic variations in channel depth (0.6-1.6 mm), width (1.4-2.48 mm), and multiplicity (1–3 channels) under closure stresses spanning 1,321 to 5,283 psi (9.1–36.4 MPa). Two distin",
+      "keyFinding": "Automatically synced from OpenAlex (Scientific Reports, 2026).",
+      "bibtex": "@article{W4415338737,\n  title={Experimental investigation into the influence of rock mechanical properties and etching patterns on acid fracture conductivity in the ilam carbonate formation},\n  author={Mohammadreza Akbari, Mohammad Javad Ameri, Mohammad Bagher Homayoun},\n  journal={Scientific Reports},\n  year={2026},\n  doi={10.1038/s41598-026-76933-8}\n}",
+      "pdfUrl": "https://doi.org/10.1038/s41598-026-76933-8"
+    },
+    {
+      "id": "oa-W7214901555",
+      "title": "Long-Term Viscoelastic-Plastic Rock-Cement-Casing Interaction: Mathematical Formulation, 3D Sequential Simulation, and Integrity Derating under Anisotropic Stresses",
+      "authors": "Mohammad Bagher Homayoun, Mohammad Javad Ameri, Mohammadreza Akbari",
+      "venue": "SSRN Electronic Journal",
+      "year": 2026,
+      "type": "Preprint",
+      "citations": 0,
+      "doi": "10.2139/ssrn.7545360",
+      "topics": [
+        "Casing",
+        "Creep",
+        "Stress (linguistics)"
+      ],
+      "abstract": "Indexed via OpenAlex automated sync.",
+      "keyFinding": "Automatically synced from OpenAlex (SSRN Electronic Journal, 2026).",
+      "bibtex": "@article{W7214901555,\n  title={Long-Term Viscoelastic-Plastic Rock-Cement-Casing Interaction: Mathematical Formulation, 3D Sequential Simulation, and Integrity Derating under Anisotropic Stresses},\n  author={Mohammad Bagher Homayoun, Mohammad Javad Ameri, Mohammadreza Akbari},\n  journal={SSRN Electronic Journal},\n  year={2026},\n  doi={10.2139/ssrn.7545360}\n}",
+      "pdfUrl": "https://doi.org/10.2139/ssrn.7545360"
+    },
+    {
+      "id": "oa-W7204581607",
+      "title": "A Policy Framework for Energy in the Industry and Technology Sector",
+      "authors": "Hossein Heirani, Mohammad Reza Akbari, Mohammad Bagher Homayoun",
+      "venue": "DOAJ (DOAJ: Directory of Open Access Journals)",
+      "year": 2025,
+      "type": "Journal",
+      "citations": 0,
+      "doi": "10.22034/jmi.2025.537444.3223",
+      "topics": [
+        "Business",
+        "Sustainable development",
+        "Technology policy"
+      ],
+      "abstract": "This study aims to provide policy recommendations for the revision of national energy policies from the perspective of the industry and technology sector. By examining global and national trends, the research identifies the requirements and policies relevant to sustainable energy development and novel technologies. A qualitative mixed-methods approach was employed, comprising content analysis of high-level policy documents, comparative studies of selected countries, and semi-structured interviews with experts. The study's theoretical framework is founded on the categorization of policies into mission-oriented and diffusion-oriented types. To analyze diffusion-oriented policies, the functions of the \"Technological Innovation System\" (TIS) framework were utilized. The results indicate that diffusion-oriented policies should focus on enhancing efficiency, knowledge development, and technolo",
+      "keyFinding": "Automatically synced from OpenAlex (DOAJ (DOAJ: Directory of Open Access Journals), 2025).",
+      "bibtex": "@article{W7204581607,\n  title={A Policy Framework for Energy in the Industry and Technology Sector},\n  author={Hossein Heirani, Mohammad Reza Akbari, Mohammad Bagher Homayoun},\n  journal={DOAJ (DOAJ: Directory of Open Access Journals)},\n  year={2025},\n  doi={10.22034/jmi.2025.537444.3223}\n}",
+      "pdfUrl": "https://doi.org/10.22034/jmi.2025.537444.3223"
+    },
+    {
+      "id": "oa-W7204600241",
+      "title": "Providing the conceptual framework of Energy consumption optimization fund; A policy solution to reduce energy waste",
+      "authors": "Hossein Heirani, Mohammad Bagher Homayoun, Mohammad Reza Akbari, Hamid Heidari, Amirhossein Sohankar, Sayyed Majid Miri Larimi",
+      "venue": "DOAJ (DOAJ: Directory of Open Access Journals)",
+      "year": 2024,
+      "type": "Journal",
+      "citations": 0,
+      "doi": "10.22034/jmi.2024.451038.3080",
+      "topics": [
+        "Scope (computer science)",
+        "Energy consumption",
+        "Environmental economics"
+      ],
+      "abstract": "Iran, being the primary possessor of hydrocarbon reserves globally, exhibits significantly higher energy intensity in comparison to its regional counterparts, with a consistent upward trajectory observed in recent years. Moreover, the per capita energy consumption in Iran surpasses that of its neighbors, with an estimated 30% of the country's energy output going to waste. The identified challenges are rooted in the underlying causes and factors, prompting the classification of solutions into two fundamental categories: price-based and non-price-based approaches. Within the scope of this study, a comprehensive remedy is proposed, focusing on the establishment of an energy consumption optimization fund. This proposal is substantiated by an in-depth examination of historical solutions implemented in various countries, alongside an analysis of Iran's past initiatives, employing the semi-stru",
+      "keyFinding": "Automatically synced from OpenAlex (DOAJ (DOAJ: Directory of Open Access Journals), 2024).",
+      "bibtex": "@article{W7204600241,\n  title={Providing the conceptual framework of Energy consumption optimization fund; A policy solution to reduce energy waste},\n  author={Hossein Heirani, Mohammad Bagher Homayoun, Mohammad Reza Akbari, Hamid Heidari, Amirhossein Sohankar, Sayyed Majid Miri Larimi},\n  journal={DOAJ (DOAJ: Directory of Open Access Journals)},\n  year={2024},\n  doi={10.22034/jmi.2024.451038.3080}\n}",
+      "pdfUrl": "https://doi.org/10.22034/jmi.2024.451038.3080"
+    }
+  ],
   "timelineOverrides": []
 }
